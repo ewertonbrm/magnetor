@@ -3,109 +3,193 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WebTorrent Simples</title>
+    <title>WebTorrent Simples (Inspired by Instant.io)</title>
     
     <script src="https://cdn.jsdelivr.net/npm/webtorrent@1.8.18/webtorrent.min.js"></script>
     
     <style>
-        body { font-family: Arial, sans-serif; padding: 20px; }
-        #log { margin-top: 20px; padding: 10px; border: 1px solid #ccc; min-height: 50px; background-color: #f9f9f9; }
-        input[type="text"] { width: 80%; padding: 10px; margin-right: 10px; }
-        button { padding: 10px 15px; cursor: pointer; }
+        body { 
+            font-family: Arial, sans-serif; 
+            padding: 20px; 
+            background-color: #f0f2f5;
+            color: #333;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        h1 { color: #007bff; text-align: center; margin-bottom: 25px; }
+        #input-area { margin-bottom: 20px; display: flex; }
+        input[type="text"] { 
+            flex-grow: 1; 
+            padding: 12px; 
+            border: 1px solid #ccc; 
+            border-radius: 4px 0 0 4px; 
+            font-size: 16px;
+        }
+        button { 
+            padding: 12px 20px; 
+            background-color: #28a745; 
+            color: white; 
+            border: none; 
+            border-radius: 0 4px 4px 0; 
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+        button:hover { background-color: #218838; }
+        
+        #log { 
+            margin-top: 15px; 
+            padding: 15px; 
+            border: 1px solid #ddd; 
+            min-height: 40px; 
+            background-color: #e9ecef; 
+            border-radius: 4px;
+            white-space: pre-wrap;
+        }
+        #status { 
+            margin-top: 15px; 
+            padding: 15px; 
+            border: 1px solid #ddd; 
+            background-color: #f8f9fa; 
+            border-radius: 4px;
+        }
+        #videoContainer {
+            margin-top: 25px;
+            text-align: center;
+        }
+        #videoContainer video, #videoContainer audio {
+            width: 100%;
+            max-width: 640px;
+            margin-top: 15px;
+            border-radius: 4px;
+        }
+        #videoContainer a {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 10px 15px;
+            background-color: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+        #videoContainer a:hover {
+            background-color: #0056b3;
+        }
     </style>
 </head>
 <body>
 
-    <h1>Cliente WebTorrent Básico</h1>
-    
-    <div>
-        <label for="magnetLink">Insira o Magnet Link:</label>
-        <input type="text" id="magnetLink" placeholder="ex: magnet:?xt=urn:btih:..." value="">
-        <button onclick="iniciarDownload()">Baixar Torrent</button>
+    <div class="container">
+        <h1>Cliente WebTorrent para Navegador</h1>
+        
+        <div id="input-area">
+            <input type="text" id="magnetLink" placeholder="Insira o Magnet Link aqui..." value="">
+            <button onclick="iniciarDownload()">Baixar Torrent</button>
+        </div>
+        
+        <div id="status"></div>
+        <div id="log">Aguardando inserção de Magnet Link...</div>
+        <div id="videoContainer"></div>
     </div>
-    
-    <div id="status"></div>
-    <div id="log">Aguardando...</div>
 
     <script>
-        // Cria uma instância do cliente WebTorrent
+        // Cria uma instância global do cliente WebTorrent
         const client = new WebTorrent();
 
         function iniciarDownload() {
             const magnetLink = document.getElementById('magnetLink').value.trim();
             const logElement = document.getElementById('log');
             const statusElement = document.getElementById('status');
+            const videoContainer = document.getElementById('videoContainer');
 
-            // Verifica se o link foi inserido
+            // 1. Validação
             if (!magnetLink) {
-                logElement.innerHTML = '<span style="color: red;">Por favor, insira um Magnet Link válido.</span>';
+                logElement.innerHTML = '<span style="color: red;">ERRO: Por favor, insira um Magnet Link válido.</span>';
                 return;
             }
 
-            // Limpa o log e atualiza o status
-            logElement.innerHTML = 'Iniciando download...';
+            // Limpa a saída anterior e o conteúdo de vídeo/download
+            logElement.innerHTML = 'Conectando aos peers (rastreadores WSS)...';
             statusElement.innerHTML = '';
-            
-            // Adiciona o torrent ao cliente
+            videoContainer.innerHTML = ''; 
+
+            // 2. Adiciona o torrent ao cliente
             client.add(magnetLink, function (torrent) {
                 
-                logElement.innerHTML = `Torrent adicionado! Nome: ${torrent.name}`;
-                
-                // Evento de progresso (a cada tick de download)
+                logElement.innerHTML = `Torrent ${torrent.name} adicionado. Aguardando conexão P2P...`;
+
+                // --- EVENTO 1: ARQUIVOS PRONTOS (METADADOS BAIXADOS) ---
+                torrent.on('ready', function() {
+                    // Pega o maior arquivo para tentar o streaming/download principal
+                    let file = torrent.files.reduce((a, b) => a.length > b.length ? a : b);
+
+                    logElement.innerHTML = `Arquivos encontrados. Maior arquivo: **${file.name}**`;
+                    
+                    // 3. Lógica de Streaming/Renderização
+                    if (file.name.match(/\.(mp4|webm|mkv|ogg|mp3|wav)$/i)) {
+                        
+                        // O WebTorrent.renderTo permite streaming de mídia
+                        file.renderTo(videoContainer, {
+                            autoplay: true,
+                            controls: true,
+                            style: "width: 100%; max-width: 640px; margin-top: 15px;" 
+                        });
+                        
+                    } else {
+                        // Para outros arquivos, prepara um link de download
+                        const downloadLink = document.createElement('a');
+                        downloadLink.textContent = `Clique para baixar: ${file.name}`;
+                        
+                        // Obtém a URL do Blob para download
+                        file.getBlobURL(function (err, url) {
+                            if (err) {
+                                logElement.innerHTML = `<span style="color: red;">Erro ao criar URL de download: ${err.message}</span>`;
+                                return;
+                            }
+                            downloadLink.href = url;
+                            downloadLink.download = file.name;
+                        });
+                        videoContainer.appendChild(downloadLink);
+                    }
+                });
+
+                // --- EVENTO 2: PROGRESSO DO DOWNLOAD ---
                 torrent.on('download', function (bytes) {
                     const progresso = (torrent.progress * 100).toFixed(2);
-                    const baixado = (torrent.downloaded / 1024 / 1024).toFixed(2);
-                    const total = (torrent.length / 1024 / 1024).toFixed(2);
-                    const taxa = (torrent.downloadSpeed / 1024).toFixed(2);
+                    const baixado = (torrent.downloaded / 1024 / 1024).toFixed(2); // MB
+                    const total = (torrent.length / 1024 / 1024).toFixed(2);       // MB
+                    const taxa = (torrent.downloadSpeed / 1024 / 1024).toFixed(2); // MB/s
                     
                     statusElement.innerHTML = `
                         **Progresso:** ${progresso}% (${baixado} MB de ${total} MB)<br>
-                        **Velocidade:** ${taxa} KB/s<br>
-                        **Peers:** ${torrent.numPeers}
+                        **Velocidade:** ${taxa} MB/s<br>
+                        **Peers:** ${torrent.numPeers} conectados / ${torrent.numFoundPeers} encontrados
                     `;
                 });
 
-                // Evento de conclusão
+                // --- EVENTO 3: CONCLUSÃO ---
                 torrent.on('done', function () {
-                    logElement.innerHTML = '<span style="color: green;">Download concluído!</span>';
-                    statusElement.innerHTML = ''; 
-
-                    // Exibir o conteúdo (Se for um arquivo de mídia, WebTorrent permite streaming!)
-                    // Exemplo para o primeiro arquivo:
-                    const file = torrent.files[0];
-                    if (file) {
-                        logElement.innerHTML += '<br>Renderizando primeiro arquivo (se for mídia)...';
-                        file.getBlobURL(function (err, url) {
-                            if (err) return logElement.innerHTML += `<br>Erro ao obter URL: ${err.message}`;
-                            
-                            // Cria um link ou, se for vídeo/áudio, um elemento de mídia
-                            if (file.type.startsWith('video/') || file.type.startsWith('audio/')) {
-                                const mediaElement = document.createElement(file.type.startsWith('video/') ? 'video' : 'audio');
-                                mediaElement.src = url;
-                                mediaElement.controls = true;
-                                mediaElement.autoplay = true;
-                                statusElement.appendChild(mediaElement);
-                            } else {
-                                // Para outros tipos de arquivo, mostra o link
-                                const link = document.createElement('a');
-                                link.href = url;
-                                link.download = file.name;
-                                link.textContent = `Baixar: ${file.name}`;
-                                statusElement.appendChild(link);
-                            }
-                        });
-                    }
+                    logElement.innerHTML = '<span style="color: green;">Download concluído! Você agora está semeando (seeding).</span>';
                 });
                 
-                // Evento de erro
+                // --- EVENTO 4: ERRO ESPECÍFICO DO TORRENT ---
                 torrent.on('error', function (err) {
-                    logElement.innerHTML = `<span style="color: red;">Erro no Torrent: ${err.message}</span>`;
+                    logElement.innerHTML = `<span style="color: red;">ERRO no Torrent: ${err.message}</span>`;
+                    console.error('Erro no Torrent:', err);
                 });
             });
             
-            // Evento de erro do cliente (se não conseguir adicionar o torrent, etc.)
+            // --- EVENTO 5: ERRO GERAL DO CLIENTE ---
             client.on('error', function (err) {
-                logElement.innerHTML = `<span style="color: red;">Erro no Cliente: ${err.message}</span>`;
+                logElement.innerHTML = `<span style="color: red;">ERRO Geral do Cliente: ${err.message}</span>`;
+                console.error('Erro no Cliente:', err);
             });
         }
     </script>
