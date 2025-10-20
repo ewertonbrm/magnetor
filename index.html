@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WebTorrent Simples (Inspired by Instant.io)</title>
+    <title>WebTorrent Simples (Versão Final)</title>
     
     <script src="https://cdn.jsdelivr.net/npm/webtorrent@1.8.18/webtorrent.min.js"></script>
     
@@ -69,18 +69,20 @@
             margin-top: 15px;
             border-radius: 4px;
         }
-        #videoContainer a {
+        #videoContainer a.final-download-link {
             display: inline-block;
             margin-top: 20px;
-            padding: 10px 15px;
-            background-color: #007bff;
+            padding: 15px 30px;
+            background-color: #dc3545; /* Cor de destaque para o download final */
             color: white;
             text-decoration: none;
             border-radius: 4px;
+            font-size: 1.2em;
+            font-weight: bold;
             transition: background-color 0.3s;
         }
-        #videoContainer a:hover {
-            background-color: #0056b3;
+        #videoContainer a.final-download-link:hover {
+            background-color: #c82333;
         }
     </style>
 </head>
@@ -123,7 +125,7 @@
             // 2. Adiciona o torrent ao cliente
             client.add(magnetLink, function (torrent) {
                 
-                logElement.innerHTML = `Torrent ${torrent.name} adicionado. Aguardando conexão P2P...`;
+                logElement.innerHTML = `Torrent **${torrent.name}** adicionado. Aguardando conexão P2P...`;
 
                 // --- EVENTO 1: ARQUIVOS PRONTOS (METADADOS BAIXADOS) ---
                 torrent.on('ready', function() {
@@ -143,29 +145,18 @@
                         });
                         
                     } else {
-                        // Para outros arquivos, prepara um link de download
-                        const downloadLink = document.createElement('a');
-                        downloadLink.textContent = `Clique para baixar: ${file.name}`;
-                        
-                        // Obtém a URL do Blob para download
-                        file.getBlobURL(function (err, url) {
-                            if (err) {
-                                logElement.innerHTML = `<span style="color: red;">Erro ao criar URL de download: ${err.message}</span>`;
-                                return;
-                            }
-                            downloadLink.href = url;
-                            downloadLink.download = file.name;
-                        });
-                        videoContainer.appendChild(downloadLink);
+                         // Para outros arquivos, exibe o link de download imediatamente após a conclusão do metadados
+                         // O link final será garantido no evento 'done'
+                         logElement.innerHTML += `<br>Arquivo não é mídia. Download iniciado, aguarde a conclusão para salvar no disco.`;
                     }
                 });
 
                 // --- EVENTO 2: PROGRESSO DO DOWNLOAD ---
                 torrent.on('download', function (bytes) {
                     const progresso = (torrent.progress * 100).toFixed(2);
-                    const baixado = (torrent.downloaded / 1024 / 1024).toFixed(2); // MB
-                    const total = (torrent.length / 1024 / 1024).toFixed(2);       // MB
-                    const taxa = (torrent.downloadSpeed / 1024 / 1024).toFixed(2); // MB/s
+                    const baixado = (torrent.downloaded / 1024 / 1024).toFixed(2);       // MB
+                    const total = (torrent.length / 1024 / 1024).toFixed(2);           // MB
+                    const taxa = (torrent.downloadSpeed / 1024 / 1024).toFixed(2);     // MB/s
                     
                     statusElement.innerHTML = `
                         **Progresso:** ${progresso}% (${baixado} MB de ${total} MB)<br>
@@ -174,9 +165,35 @@
                     `;
                 });
 
-                // --- EVENTO 3: CONCLUSÃO ---
+                // --- EVENTO 3: CONCLUSÃO (GARANTIA DE DOWNLOAD) ---
                 torrent.on('done', function () {
                     logElement.innerHTML = '<span style="color: green;">Download concluído! Você agora está semeando (seeding).</span>';
+                    
+                    // Pega o maior arquivo para garantir que o link de download principal seja exibido
+                    let file = torrent.files.reduce((a, b) => a.length > b.length ? a : b);
+
+                    // Se foi streaming, remove o elemento de mídia para focar no download final
+                    videoContainer.innerHTML = '';
+                    
+                    // 1. Cria o elemento para o link de download final
+                    const finalDownloadLink = document.createElement('a');
+                    finalDownloadLink.textContent = `[ CLIQUE AQUI PARA SALVAR O ARQUIVO: ${file.name} ]`;
+                    finalDownloadLink.className = 'final-download-link'; // Aplica o estilo de destaque
+                    
+                    // 2. Obtém a URL do Blob para o download (forçando o salvamento)
+                    file.getBlobURL(function (err, url) {
+                        if (err) {
+                            logElement.innerHTML += `<br><span style="color: red;">Erro ao gerar link final: ${err.message}</span>`;
+                            return;
+                        }
+                        finalDownloadLink.href = url;
+                        finalDownloadLink.download = file.name;
+                        
+                        // 3. Adiciona o link de download ao container
+                        videoContainer.appendChild(finalDownloadLink);
+                        
+                        logElement.innerHTML += '<br>Por favor, clique no link acima para salvar o arquivo no seu dispositivo.';
+                    });
                 });
                 
                 // --- EVENTO 4: ERRO ESPECÍFICO DO TORRENT ---
