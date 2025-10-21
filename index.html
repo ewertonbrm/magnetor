@@ -163,18 +163,30 @@
         }
 
         function cancelarTorrent() {
+            const logElement = document.getElementById('log');
+            const magnetLinkInput = document.getElementById('magnetLink');
+
             if (currentTorrent) {
-                // Destrói o torrent (remove da rede e para toda atividade)
+                // 1. Limpa o link de magnet
+                magnetLinkInput.value = '';
+
+                // 2. Destrói o torrent (limpando o cache de metadados e peers)
                 currentTorrent.destroy(); 
                 client.remove(currentTorrent); 
                 currentTorrent = null;
 
-                // Limpa a interface
+                // 3. Limpa contadores e interface
                 document.getElementById('controls').style.display = 'none';
                 document.getElementById('status').innerHTML = '';
                 document.getElementById('videoContainer').innerHTML = '';
-                document.getElementById('log').innerHTML = '<span style="color: darkred;">Download Cancelado e removido do cliente.</span>';
-                isPaused = false; // Reseta o estado
+                isPaused = false; 
+
+                // 4. Exibe a mensagem de cancelamento (mais proeminente)
+                logElement.innerHTML = '<span style="color: darkred; font-weight: bold;">[ DOWNLOAD CANCELADO ]</span> O torrent foi removido e o campo de endereço limpo.';
+            } else {
+                // Se não houver torrent ativo, apenas limpa o campo
+                magnetLinkInput.value = '';
+                logElement.innerHTML = 'Nenhum download ativo para cancelar. O campo de endereço foi limpo.';
             }
         }
 
