@@ -164,28 +164,30 @@
 
         function cancelarTorrent() {
             const logElement = document.getElementById('log');
+            const statusElement = document.getElementById('status');
+            const videoContainer = document.getElementById('videoContainer');
+            const controlsElement = document.getElementById('controls');
             const magnetLinkInput = document.getElementById('magnetLink');
+            
+            // 1. Limpa o campo de magnet
+            magnetLinkInput.value = '';
+            
+            // 2. Limpa contadores e interface
+            statusElement.innerHTML = '';
+            videoContainer.innerHTML = '';
+            controlsElement.style.display = 'none';
+            isPaused = false; 
 
+            // 3. Destrói o torrent (se houver)
             if (currentTorrent) {
-                // 1. Limpa o link de magnet
-                magnetLinkInput.value = '';
-
-                // 2. Destrói o torrent (limpando o cache de metadados e peers)
                 currentTorrent.destroy(); 
                 client.remove(currentTorrent); 
                 currentTorrent = null;
 
-                // 3. Limpa contadores e interface
-                document.getElementById('controls').style.display = 'none';
-                document.getElementById('status').innerHTML = '';
-                document.getElementById('videoContainer').innerHTML = '';
-                isPaused = false; 
-
-                // 4. Exibe a mensagem de cancelamento (mais proeminente)
+                // 4. Exibe a mensagem de cancelamento
                 logElement.innerHTML = '<span style="color: darkred; font-weight: bold;">[ DOWNLOAD CANCELADO ]</span> O torrent foi removido e o campo de endereço limpo.';
             } else {
-                // Se não houver torrent ativo, apenas limpa o campo
-                magnetLinkInput.value = '';
+                // Se não houver torrent ativo
                 logElement.innerHTML = 'Nenhum download ativo para cancelar. O campo de endereço foi limpo.';
             }
         }
