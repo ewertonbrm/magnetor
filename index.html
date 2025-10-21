@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WebTorrent Simples (Versão Final)</title>
+    <title>WebTorrent Simples (Pausar/Retomar)</title>
     
     <script src="https://cdn.jsdelivr.net/npm/webtorrent@1.8.18/webtorrent.min.js"></script>
     
@@ -33,15 +33,27 @@
         }
         button { 
             padding: 12px 20px; 
-            background-color: #28a745; 
             color: white; 
             border: none; 
-            border-radius: 0 4px 4px 0; 
             cursor: pointer;
             font-size: 16px;
             transition: background-color 0.3s;
         }
-        button:hover { background-color: #218838; }
+        #download-btn {
+            background-color: #28a745;
+            border-radius: 0 4px 4px 0;
+        }
+        #download-btn:hover { background-color: #218838; }
+
+        /* Estilos dos novos botões de controle */
+        #controls button {
+            background-color: #ffc107;
+            color: #333;
+            margin-right: 10px;
+            border-radius: 4px;
+        }
+        #controls button:hover { background-color: #e0a800; }
+        #controls { margin-top: 15px; text-align: center; }
         
         #log { 
             margin-top: 15px; 
@@ -73,7 +85,7 @@
             display: inline-block;
             margin-top: 20px;
             padding: 15px 30px;
-            background-color: #dc3545; /* Cor de destaque para o download final */
+            background-color: #dc3545; 
             color: white;
             text-decoration: none;
             border-radius: 4px;
@@ -93,7 +105,12 @@
         
         <div id="input-area">
             <input type="text" id="magnetLink" placeholder="Insira o Magnet Link aqui..." value="">
-            <button onclick="iniciarDownload()">Baixar Torrent</button>
+            <button id="download-btn" onclick="iniciarDownload()">Baixar Torrent</button>
+        </div>
+
+        <div id="controls" style="display: none;">
+            <button onclick="pausarTorrent()">Pausar</button>
+            <button onclick="retomarTorrent()">Retomar</button>
         </div>
         
         <div id="status"></div>
@@ -104,12 +121,34 @@
     <script>
         // Cria uma instância global do cliente WebTorrent
         const client = new WebTorrent();
+        // Variável para armazenar o torrent atualmente ativo
+        let currentTorrent = null;
 
+        // --- FUNÇÕES DE CONTROLE ---
+
+        function pausarTorrent() {
+            if (currentTorrent) {
+                currentTorrent.pause();
+                document.getElementById('log').innerHTML = '<span style="color: orange;">Torrent Pausado.</span>';
+                document.getElementById('status').innerHTML += '<br>STATUS: PAUSADO';
+            }
+        }
+
+        function retomarTorrent() {
+            if (currentTorrent) {
+                currentTorrent.resume();
+                document.getElementById('log').innerHTML = '<span style="color: green;">Torrent Retomado.</span>';
+            }
+        }
+
+        // --- FUNÇÃO PRINCIPAL DE DOWNLOAD ---
+        
         function iniciarDownload() {
             const magnetLink = document.getElementById('magnetLink').value.trim();
             const logElement = document.getElementById('log');
             const statusElement = document.getElementById('status');
             const videoContainer = document.getElementById('videoContainer');
+            const controlsElement = document.getElementById('controls');
 
             // 1. Validação
             if (!magnetLink) {
@@ -117,27 +156,31 @@
                 return;
             }
 
-            // Limpa a saída anterior e o conteúdo de vídeo/download
+            // Remove torrent anterior se houver
+            if (currentTorrent) {
+                currentTorrent.destroy();
+                currentTorrent = null;
+            }
+
+            // Limpa a saída anterior e exibe os controles
             logElement.innerHTML = 'Conectando aos peers (rastreadores WSS)...';
             statusElement.innerHTML = '';
             videoContainer.innerHTML = ''; 
+            controlsElement.style.display = 'block';
 
             // 2. Adiciona o torrent ao cliente
             client.add(magnetLink, function (torrent) {
+                currentTorrent = torrent; // Armazena a referência
                 
                 logElement.innerHTML = `Torrent **${torrent.name}** adicionado. Aguardando conexão P2P...`;
 
                 // --- EVENTO 1: ARQUIVOS PRONTOS (METADADOS BAIXADOS) ---
                 torrent.on('ready', function() {
-                    // Pega o maior arquivo para tentar o streaming/download principal
                     let file = torrent.files.reduce((a, b) => a.length > b.length ? a : b);
 
                     logElement.innerHTML = `Arquivos encontrados. Maior arquivo: **${file.name}**`;
                     
-                    // 3. Lógica de Streaming/Renderização
                     if (file.name.match(/\.(mp4|webm|mkv|ogg|mp3|wav)$/i)) {
-                        
-                        // O WebTorrent.renderTo permite streaming de mídia
                         file.renderTo(videoContainer, {
                             autoplay: true,
                             controls: true,
@@ -145,8 +188,6 @@
                         });
                         
                     } else {
-                         // Para outros arquivos, exibe o link de download imediatamente após a conclusão do metadados
-                         // O link final será garantido no evento 'done'
                          logElement.innerHTML += `<br>Arquivo não é mídia. Download iniciado, aguarde a conclusão para salvar no disco.`;
                     }
                 });
@@ -169,16 +210,16 @@
                 torrent.on('done', function () {
                     logElement.innerHTML = '<span style="color: green;">Download concluído! Você agora está semeando (seeding).</span>';
                     
-                    // Pega o maior arquivo para garantir que o link de download principal seja exibido
                     let file = torrent.files.reduce((a, b) => a.length > b.length ? a : b);
 
                     // Se foi streaming, remove o elemento de mídia para focar no download final
                     videoContainer.innerHTML = '';
+                    controlsElement.style.display = 'none';
                     
                     // 1. Cria o elemento para o link de download final
                     const finalDownloadLink = document.createElement('a');
                     finalDownloadLink.textContent = `[ CLIQUE AQUI PARA SALVAR O ARQUIVO: ${file.name} ]`;
-                    finalDownloadLink.className = 'final-download-link'; // Aplica o estilo de destaque
+                    finalDownloadLink.className = 'final-download-link'; 
                     
                     // 2. Obtém a URL do Blob para o download (forçando o salvamento)
                     file.getBlobURL(function (err, url) {
@@ -192,7 +233,8 @@
                         // 3. Adiciona o link de download ao container
                         videoContainer.appendChild(finalDownloadLink);
                         
-                        logElement.innerHTML += '<br>Por favor, clique no link acima para salvar o arquivo no seu dispositivo.';
+                        // CORREÇÃO: Mudar "acima" para "abaixo"
+                        logElement.innerHTML += '<br>Por favor, clique no link **abaixo** para salvar o arquivo no seu dispositivo.';
                     });
                 });
                 
@@ -200,6 +242,7 @@
                 torrent.on('error', function (err) {
                     logElement.innerHTML = `<span style="color: red;">ERRO no Torrent: ${err.message}</span>`;
                     console.error('Erro no Torrent:', err);
+                    controlsElement.style.display = 'none';
                 });
             });
             
@@ -207,6 +250,7 @@
             client.on('error', function (err) {
                 logElement.innerHTML = `<span style="color: red;">ERRO Geral do Cliente: ${err.message}</span>`;
                 console.error('Erro no Cliente:', err);
+                controlsElement.style.display = 'none';
             });
         }
     </script>
