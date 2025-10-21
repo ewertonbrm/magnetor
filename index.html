@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WebTorrent Simples (Pausar/Retomar)</title>
+    <title>WebTorrent Simples (Pausar/Cancelar Funcional)</title>
     
     <script src="https://cdn.jsdelivr.net/npm/webtorrent@1.8.18/webtorrent.min.js"></script>
     
@@ -46,13 +46,20 @@
         #download-btn:hover { background-color: #218838; }
 
         /* Estilos dos novos botões de controle */
-        #controls button {
+        #pause-resume-btn {
             background-color: #ffc107;
             color: #333;
             margin-right: 10px;
             border-radius: 4px;
         }
-        #controls button:hover { background-color: #e0a800; }
+        #pause-resume-btn:hover { background-color: #e0a800; }
+        
+        #cancel-btn {
+            background-color: #dc3545; /* Vermelho para cancelar */
+            border-radius: 4px;
+        }
+        #cancel-btn:hover { background-color: #c82333; }
+        
         #controls { margin-top: 15px; text-align: center; }
         
         #log { 
@@ -109,8 +116,8 @@
         </div>
 
         <div id="controls" style="display: none;">
-            <button onclick="pausarTorrent()">Pausar</button>
-            <button onclick="retomarTorrent()">Retomar</button>
+            <button id="pause-resume-btn" onclick="togglePauseResume()">Pausar</button>
+            <button id="cancel-btn" onclick="cancelarTorrent()">Cancelar</button>
         </div>
         
         <div id="status"></div>
@@ -123,21 +130,51 @@
         const client = new WebTorrent();
         // Variável para armazenar o torrent atualmente ativo
         let currentTorrent = null;
+        // Variável de estado para controlar a interface (inicia como NÃO pausado)
+        let isPaused = false;
 
         // --- FUNÇÕES DE CONTROLE ---
 
-        function pausarTorrent() {
-            if (currentTorrent) {
+        function togglePauseResume() {
+            const btn = document.getElementById('pause-resume-btn');
+            const logElement = document.getElementById('log');
+            const statusElement = document.getElementById('status');
+
+            if (!currentTorrent) return;
+
+            if (!isPaused) {
+                // Tenta Pausar
                 currentTorrent.pause();
-                document.getElementById('log').innerHTML = '<span style="color: orange;">Torrent Pausado.</span>';
-                document.getElementById('status').innerHTML += '<br>STATUS: PAUSADO';
+                isPaused = true;
+                btn.textContent = 'Retomar';
+                btn.style.backgroundColor = '#007bff'; // Azul para Retomar
+                logElement.innerHTML = '<span style="color: orange;">Torrent Pausado.</span>';
+                statusElement.innerHTML += '<br>STATUS: PAUSADO';
+            } else {
+                // Tenta Retomar
+                currentTorrent.resume();
+                isPaused = false;
+                btn.textContent = 'Pausar';
+                btn.style.backgroundColor = '#ffc107'; // Amarelo para Pausar
+                logElement.innerHTML = '<span style="color: green;">Torrent Retomado.</span>';
+                // Remove o status PAUSADO da interface
+                statusElement.innerHTML = statusElement.innerHTML.replace('<br>STATUS: PAUSADO', '');
             }
         }
 
-        function retomarTorrent() {
+        function cancelarTorrent() {
             if (currentTorrent) {
-                currentTorrent.resume();
-                document.getElementById('log').innerHTML = '<span style="color: green;">Torrent Retomado.</span>';
+                // Destrói o torrent (remove da rede e para toda atividade)
+                currentTorrent.destroy(); 
+                client.remove(currentTorrent); 
+                currentTorrent = null;
+
+                // Limpa a interface
+                document.getElementById('controls').style.display = 'none';
+                document.getElementById('status').innerHTML = '';
+                document.getElementById('videoContainer').innerHTML = '';
+                document.getElementById('log').innerHTML = '<span style="color: darkred;">Download Cancelado e removido do cliente.</span>';
+                isPaused = false; // Reseta o estado
             }
         }
 
@@ -149,6 +186,7 @@
             const statusElement = document.getElementById('status');
             const videoContainer = document.getElementById('videoContainer');
             const controlsElement = document.getElementById('controls');
+            const pauseBtn = document.getElementById('pause-resume-btn');
 
             // 1. Validação
             if (!magnetLink) {
@@ -156,17 +194,20 @@
                 return;
             }
 
-            // Remove torrent anterior se houver
+            // Garante que o torrent anterior seja destruído antes de iniciar um novo
             if (currentTorrent) {
                 currentTorrent.destroy();
                 currentTorrent = null;
             }
 
-            // Limpa a saída anterior e exibe os controles
+            // Limpa a saída anterior e configura os controles para o estado inicial (Pausar)
             logElement.innerHTML = 'Conectando aos peers (rastreadores WSS)...';
             statusElement.innerHTML = '';
             videoContainer.innerHTML = ''; 
             controlsElement.style.display = 'block';
+            pauseBtn.textContent = 'Pausar';
+            pauseBtn.style.backgroundColor = '#ffc107';
+            isPaused = false; // Garante que o estado seja ativo ao iniciar
 
             // 2. Adiciona o torrent ao cliente
             client.add(magnetLink, function (torrent) {
@@ -194,16 +235,19 @@
 
                 // --- EVENTO 2: PROGRESSO DO DOWNLOAD ---
                 torrent.on('download', function (bytes) {
-                    const progresso = (torrent.progress * 100).toFixed(2);
-                    const baixado = (torrent.downloaded / 1024 / 1024).toFixed(2);       // MB
-                    const total = (torrent.length / 1024 / 1024).toFixed(2);           // MB
-                    const taxa = (torrent.downloadSpeed / 1024 / 1024).toFixed(2);     // MB/s
-                    
-                    statusElement.innerHTML = `
-                        **Progresso:** ${progresso}% (${baixado} MB de ${total} MB)<br>
-                        **Velocidade:** ${taxa} MB/s<br>
-                        **Peers Conectados:** ${torrent.numPeers}
-                    `;
+                    // Só atualiza as estatísticas de velocidade se não estiver pausado
+                    if (!isPaused) { 
+                        const progresso = (torrent.progress * 100).toFixed(2);
+                        const baixado = (torrent.downloaded / 1024 / 1024).toFixed(2);       // MB
+                        const total = (torrent.length / 1024 / 1024).toFixed(2);           // MB
+                        const taxa = (torrent.downloadSpeed / 1024 / 1024).toFixed(2);     // MB/s
+                        
+                        statusElement.innerHTML = `
+                            **Progresso:** ${progresso}% (${baixado} MB de ${total} MB)<br>
+                            **Velocidade:** ${taxa} MB/s<br>
+                            **Peers Conectados:** ${torrent.numPeers}
+                        `;
+                    }
                 });
 
                 // --- EVENTO 3: CONCLUSÃO (GARANTIA DE DOWNLOAD) ---
@@ -212,16 +256,13 @@
                     
                     let file = torrent.files.reduce((a, b) => a.length > b.length ? a : b);
 
-                    // Se foi streaming, remove o elemento de mídia para focar no download final
                     videoContainer.innerHTML = '';
                     controlsElement.style.display = 'none';
                     
-                    // 1. Cria o elemento para o link de download final
                     const finalDownloadLink = document.createElement('a');
                     finalDownloadLink.textContent = `[ CLIQUE AQUI PARA SALVAR O ARQUIVO: ${file.name} ]`;
                     finalDownloadLink.className = 'final-download-link'; 
                     
-                    // 2. Obtém a URL do Blob para o download (forçando o salvamento)
                     file.getBlobURL(function (err, url) {
                         if (err) {
                             logElement.innerHTML += `<br><span style="color: red;">Erro ao gerar link final: ${err.message}</span>`;
@@ -230,10 +271,8 @@
                         finalDownloadLink.href = url;
                         finalDownloadLink.download = file.name;
                         
-                        // 3. Adiciona o link de download ao container
                         videoContainer.appendChild(finalDownloadLink);
                         
-                        // CORREÇÃO: Mudar "acima" para "abaixo"
                         logElement.innerHTML += '<br>Por favor, clique no link **abaixo** para salvar o arquivo no seu dispositivo.';
                     });
                 });
