@@ -3,139 +3,162 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WebTorrent Simples</title>
+    <title>WebTorrent Cliente P2P</title>
     
     <script src="https://cdn.jsdelivr.net/npm/webtorrent@1.8.18/webtorrent.min.js"></script>
     
     <style>
-        /* Paleta de Cores */
+        /* ---------------------------------------------------- */
+        /* PALETA DE CORES E VARIÁVEIS CSS */
+        /* ---------------------------------------------------- */
         :root {
-            --cor-base: #704214; /* Marrom escuro */
+            --cor-base-fundo: #FAF0E6; /* Sépia/Bege muito leve */
+            --cor-container: #FFFFFF;
             --azul-royal: #4169E1;
             --violeta: #8A2BE2;
-            --branco: #FFFFFF;
-            --cinza-claro: #f8f9fa;
-            --cinza-medio: #e9ecef;
+            --texto-principal: #333333;
+            --sombra-leve: rgba(0, 0, 0, 0.1);
+            --sombra-media: rgba(0, 0, 0, 0.2);
             --erro-vermelho: #dc3545;
             --sucesso-verde: #28a745;
             --aviso-laranja: #ffc107;
+            --cor-log: #f2f6ff; /* Fundo levemente azulado para logs */
         }
 
+        /* ---------------------------------------------------- */
+        /* ESTRUTURA GERAL */
+        /* ---------------------------------------------------- */
         body { 
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-            padding: 0; /* Remover padding padrão do body */
-            margin: 0;  /* Remover margem padrão do body */
-            background-color: var(--cor-base);
-            color: #333;
+            padding: 0; 
+            margin: 0;  
+            background-color: var(--cor-base-fundo);
+            color: var(--texto-principal);
             display: flex;
             flex-direction: column;
+            align-items: center; /* Centraliza o conteúdo horizontalmente */
             min-height: 100vh;
         }
 
-        /* Topo com Imagem de Fundo (Simulando o H1 removido) */
+        /* Topo com Imagem de Fundo */
         .header-image {
-            height: 150px; /* Altura da imagem */
-            background-image: url('torrentum.jpg'); /* Caminho da sua imagem */
-            background-size: cover; /* Cobre todo o elemento */
-            background-position: center; /* Centraliza a imagem */
+            width: 100%;
+            max-width: 860px; /* Ajustado para ser ligeiramente maior que o container */
+            height: 120px; 
+            background-image: url('torrentum.jpg'); 
+            background-size: cover; 
+            background-position: center; 
             background-repeat: no-repeat;
-            margin-bottom: 20px; /* Espaço entre o topo e o container */
-            display: flex; /* Para centralizar o texto se houver */
-            align-items: center; /* Centraliza verticalmente */
-            justify-content: center; /* Centraliza horizontalmente */
-            color: var(--branco);
-            font-size: 2.5em;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
-            /* O texto h1 foi removido, então este div atua como cabeçalho visual */
+            margin-bottom: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px var(--sombra-media);
         }
         
         .container {
+            width: 100%;
             max-width: 800px;
-            margin: 20px auto; /* Adicionado margem superior e inferior para espaçamento */
-            background-color: var(--branco);
+            margin-top: 0; 
+            margin-bottom: 30px;
+            background-color: var(--cor-container);
             padding: 30px;
             border-radius: 8px;
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* Sombra mais intensa */
-            flex-grow: 1; /* Permite que o container ocupe o espaço restante */
+            box-shadow: 0 4px 12px var(--sombra-media);
         }
         
+        /* ---------------------------------------------------- */
+        /* ÁREA DE INPUT E BOTÃO PRINCIPAL */
+        /* ---------------------------------------------------- */
         #input-area { 
-            margin-bottom: 20px; 
             display: flex; 
-            border: 1px solid var(--azul-royal); /* Borda azul royal */
-            border-radius: 4px;
-            overflow: hidden; /* Para os elementos internos respeitarem o border-radius */
+            border: 2px solid var(--azul-royal); /* Borda mais grossa para destaque */
+            border-radius: 6px;
+            overflow: hidden;
+            margin-bottom: 20px;
         }
         input[type="text"] { 
             flex-grow: 1; 
-            padding: 12px; 
-            border: none; /* Remove a borda padrão do input */
+            padding: 15px; 
+            border: none; 
             font-size: 16px;
-            color: #333;
-            background-color: var(--cinza-claro);
+            color: var(--texto-principal);
+            background-color: var(--cor-container); /* Branco puro para o campo */
         }
         input[type="text"]:focus {
             outline: none;
-            background-color: var(--branco);
+            background-color: var(--cor-log);
         }
 
+        /* ---------------------------------------------------- */
+        /* BOTÕES DE AÇÃO E CONTROLE */
+        /* ---------------------------------------------------- */
         button { 
-            padding: 12px 20px; 
+            padding: 15px 25px; /* Padding maior para melhor toque */
             color: var(--branco); 
             border: none; 
             cursor: pointer;
             font-size: 16px;
-            transition: background-color 0.3s ease;
-            white-space: nowrap; /* Evita que o texto do botão quebre */
+            font-weight: 600;
+            transition: background-color 0.3s ease, transform 0.2s ease;
         }
-        #download-btn {
-            background-color: var(--violeta); /* Violeta para o botão de download */
-            border-radius: 0 4px 4px 0;
+        button:hover {
+            filter: brightness(0.9); /* Efeito de escurecimento no hover */
+            transform: translateY(-1px); /* Leve elevação */
         }
-        #download-btn:hover { background-color: darken(var(--violeta), 10%); } /* Escurece no hover */
 
-        /* Estilos dos botões de controle Pausar/Cancelar */
+        #download-btn {
+            background-color: var(--violeta); /* Violeta para Ação Principal */
+            border-radius: 0 6px 6px 0;
+        }
+        
         #controls { 
-            margin-top: 20px; 
+            margin-top: 25px; 
             text-align: center; 
             display: flex;
             justify-content: center;
-            gap: 10px; /* Espaçamento entre os botões */
+            gap: 15px; /* Aumenta o espaço entre os botões de controle */
         }
-        #pause-resume-btn {
-            background-color: var(--azul-royal); /* Azul Royal */
-            border-radius: 4px;
-        }
-        #pause-resume-btn:hover { background-color: darken(var(--azul-royal), 10%); }
 
-        #cancel-btn {
-            background-color: var(--erro-vermelho); /* Vermelho para cancelar */
+        #pause-resume-btn {
+            background-color: var(--azul-royal); /* Azul Royal (Pausa/Retoma) */
             border-radius: 4px;
         }
-        #cancel-btn:hover { background-color: darken(var(--erro-vermelho), 10%); }
-        
-        /* Cores para os status e logs */
+        #pause-resume-btn[data-paused="true"] { /* Estilo específico para quando estiver em "Retomar" */
+            background-color: var(--sucesso-verde);
+        }
+        #cancel-btn {
+            background-color: var(--erro-vermelho); /* Vermelho para Cancelar */
+            border-radius: 4px;
+        }
+
+        /* ---------------------------------------------------- */
+        /* ÁREAS DE STATUS E LOG */
+        /* ---------------------------------------------------- */
         #log { 
-            margin-top: 20px; /* Aumenta a margem para separar dos controles */
+            margin-top: 20px; 
             padding: 15px; 
-            border: 1px solid var(--violeta); /* Borda violeta */
-            min-height: 60px; /* Um pouco mais alto */
-            background-color: var(--cinza-medio); 
+            border: 1px solid var(--violeta); 
+            min-height: 60px;
+            background-color: var(--cor-log); 
             border-radius: 4px;
             white-space: pre-wrap;
-            color: #444;
+            color: var(--texto-principal);
+            line-height: 1.5;
         }
         #status { 
             margin-top: 15px; 
             padding: 15px; 
-            border: 1px solid var(--azul-royal); /* Borda azul royal */
-            background-color: var(--cinza-claro); 
+            border: 1px solid var(--azul-royal); 
+            background-color: var(--cor-container); /* Fundo branco para status */
             border-radius: 4px;
-            color: #444;
+            color: #555;
+            font-size: 0.95em;
         }
         
+        /* ---------------------------------------------------- */
+        /* RENDERIZAÇÃO E LINK FINAL */
+        /* ---------------------------------------------------- */
         #videoContainer {
-            margin-top: 25px;
+            margin-top: 30px;
             text-align: center;
         }
         #videoContainer video, #videoContainer audio {
@@ -143,43 +166,36 @@
             max-width: 640px;
             margin-top: 15px;
             border-radius: 4px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Sombra para mídias */
+            box-shadow: 0 4px 8px var(--sombra-leve);
         }
         #videoContainer a.final-download-link {
             display: inline-block;
-            margin-top: 30px; /* Mais espaço para o link final */
-            padding: 18px 35px; /* Botão maior */
-            background-color: var(--violeta); /* Violeta para o link final */
+            margin-top: 30px; 
+            padding: 18px 35px; 
+            background-color: var(--violeta); /* Violeta de destaque */
             color: var(--branco);
             text-decoration: none;
-            border-radius: 6px; /* Borda um pouco mais arredondada */
-            font-size: 1.3em; /* Texto maior */
+            border-radius: 6px; 
+            font-size: 1.3em; 
             font-weight: bold;
-            transition: background-color 0.3s ease, transform 0.2s ease;
+            box-shadow: 0 4px 6px var(--sombra-leve);
         }
         #videoContainer a.final-download-link:hover {
-            background-color: darken(var(--violeta), 10%);
-            transform: translateY(-2px); /* Efeito de elevação */
+            filter: brightness(0.9);
+            transform: translateY(-2px);
         }
 
-        /* Cores para as mensagens de log */
+        /* Cores para as mensagens de log (Melhor contraste) */
         .log-error { color: var(--erro-vermelho); font-weight: bold; }
         .log-success { color: var(--sucesso-verde); font-weight: bold; }
         .log-warning { color: var(--aviso-laranja); font-weight: bold; }
-        .log-cancelled { color: darkred; font-weight: bold; }
-
-        /* Pequena função para escurecer cores no hover (apenas para exemplo, não é CSS padrão) */
-        /* Para usar darken no CSS puro, você precisaria de um pré-processador como SASS/LESS */
-        /* Para este exemplo, usaremos cores ligeiramente diferentes para o hover */
-        button:hover {
-            filter: brightness(0.9); /* Uma forma simples de escurecer no CSS */
-        }
+        .log-cancelled { color: var(--erro-vermelho); font-weight: bold; }
     </style>
 </head>
 <body>
 
-    <div class="header-image">
-        </div>
+    
+<div class="header-image"></div>
 
     <div class="container">
         
@@ -201,9 +217,7 @@
     <script>
         // Cria uma instância global do cliente WebTorrent
         const client = new WebTorrent();
-        // Variável para armazenar o torrent atualmente ativo
         let currentTorrent = null;
-        // Variável de estado para controlar a interface (inicia como NÃO pausado)
         let isPaused = false;
 
         // --- FUNÇÕES DE CONTROLE ---
@@ -220,7 +234,8 @@
                 currentTorrent.pause();
                 isPaused = true;
                 btn.textContent = 'Retomar';
-                btn.style.backgroundColor = 'var(--azul-royal)'; // Azul para Retomar
+                btn.style.backgroundColor = 'var(--sucesso-verde)'; // Verde para Retomar (Ação positiva)
+                btn.setAttribute('data-paused', 'true');
                 logElement.innerHTML = '<span class="log-warning">Torrent Pausado.</span>';
                 statusElement.innerHTML += '<br>STATUS: PAUSADO';
             } else {
@@ -228,7 +243,8 @@
                 currentTorrent.resume();
                 isPaused = false;
                 btn.textContent = 'Pausar';
-                btn.style.backgroundColor = 'var(--azul-royal)'; // Azul para Pausar
+                btn.style.backgroundColor = 'var(--azul-royal)'; // Azul Royal para Pausar
+                btn.setAttribute('data-paused', 'false');
                 logElement.innerHTML = '<span class="log-success">Torrent Retomado.</span>';
                 // Remove o status PAUSADO da interface
                 statusElement.innerHTML = statusElement.innerHTML.replace('<br>STATUS: PAUSADO', '');
@@ -291,9 +307,10 @@
             logElement.innerHTML = 'Conectando aos peers (rastreadores WSS)...';
             statusElement.innerHTML = '';
             videoContainer.innerHTML = ''; 
-            controlsElement.style.display = 'flex'; /* Usar flex para os botões de controle */
+            controlsElement.style.display = 'flex'; 
             pauseBtn.textContent = 'Pausar';
             pauseBtn.style.backgroundColor = 'var(--azul-royal)';
+            pauseBtn.setAttribute('data-paused', 'false');
             isPaused = false; // Garante que o estado seja ativo ao iniciar
 
             // 2. Adiciona o torrent ao cliente
