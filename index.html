@@ -23,46 +23,48 @@
             --sucesso-verde: #28a745;
             --aviso-laranja: #ffc107;
             --cor-log: #f2f6ff; /* Fundo levemente azulado para logs */
+            --padding-padrao: 30px;
         }
 
         /* ---------------------------------------------------- */
-        /* ESTRUTURA GERAL */
+        /* ESTRUTURA GERAL E CENTRALIZAÇÃO */
         /* ---------------------------------------------------- */
         body { 
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-            padding: 0; 
-            margin: 0;  
+            margin: 0;
+            padding: var(--padding-padrao); /* Adiciona margem em torno de todo o corpo */
             background-color: var(--cor-base-fundo);
             color: var(--texto-principal);
             display: flex;
             flex-direction: column;
             align-items: center; /* Centraliza o conteúdo horizontalmente */
             min-height: 100vh;
+            box-sizing: border-box; /* Garante que o padding não adicione largura */
         }
-
-        /* Topo com Imagem de Fundo */
-        .header-image {
+        
+        /* Topo com Imagem COMPLETA */
+        .header-image-wrapper {
             width: 100%;
-            max-width: 860px; /* Ajustado para ser ligeiramente maior que o container */
-            height: 120px; 
-            background-image: url('torrentum.jpg'); 
-            background-size: cover; 
-            background-position: center; 
-            background-repeat: no-repeat;
+            max-width: 800px; /* Largura máxima igual ao container */
             margin-bottom: 20px;
-            border-radius: 8px;
             box-shadow: 0 4px 12px var(--sombra-media);
+            border-radius: 8px;
+            overflow: hidden; /* Garante que a imagem respeite o border-radius */
+        }
+        .header-image-wrapper img {
+            display: block;
+            width: 100%;
+            height: auto; /* Garante que a imagem seja exibida por inteiro */
         }
         
         .container {
             width: 100%;
             max-width: 800px;
-            margin-top: 0; 
-            margin-bottom: 30px;
             background-color: var(--cor-container);
-            padding: 30px;
+            padding: var(--padding-padrao);
             border-radius: 8px;
             box-shadow: 0 4px 12px var(--sombra-media);
+            box-sizing: border-box; /* Inclui padding na largura total */
         }
         
         /* ---------------------------------------------------- */
@@ -70,9 +72,9 @@
         /* ---------------------------------------------------- */
         #input-area { 
             display: flex; 
-            border: 2px solid var(--azul-royal); /* Borda mais grossa para destaque */
+            border: 2px solid var(--azul-royal); 
             border-radius: 6px;
-            overflow: hidden;
+            overflow: hidden; 
             margin-bottom: 20px;
         }
         input[type="text"] { 
@@ -81,7 +83,7 @@
             border: none; 
             font-size: 16px;
             color: var(--texto-principal);
-            background-color: var(--cor-container); /* Branco puro para o campo */
+            background-color: var(--cor-container); 
         }
         input[type="text"]:focus {
             outline: none;
@@ -92,21 +94,22 @@
         /* BOTÕES DE AÇÃO E CONTROLE */
         /* ---------------------------------------------------- */
         button { 
-            padding: 15px 25px; /* Padding maior para melhor toque */
+            padding: 15px 25px; 
             color: var(--branco); 
             border: none; 
             cursor: pointer;
             font-size: 16px;
             font-weight: 600;
             transition: background-color 0.3s ease, transform 0.2s ease;
+            white-space: nowrap; 
         }
         button:hover {
-            filter: brightness(0.9); /* Efeito de escurecimento no hover */
-            transform: translateY(-1px); /* Leve elevação */
+            filter: brightness(0.9); 
+            transform: translateY(-1px); 
         }
 
         #download-btn {
-            background-color: var(--violeta); /* Violeta para Ação Principal */
+            background-color: var(--violeta); 
             border-radius: 0 6px 6px 0;
         }
         
@@ -115,18 +118,18 @@
             text-align: center; 
             display: flex;
             justify-content: center;
-            gap: 15px; /* Aumenta o espaço entre os botões de controle */
+            gap: 15px; 
         }
 
         #pause-resume-btn {
-            background-color: var(--azul-royal); /* Azul Royal (Pausa/Retoma) */
+            background-color: var(--azul-royal); 
             border-radius: 4px;
         }
-        #pause-resume-btn[data-paused="true"] { /* Estilo específico para quando estiver em "Retomar" */
+        #pause-resume-btn[data-paused="true"] { 
             background-color: var(--sucesso-verde);
         }
         #cancel-btn {
-            background-color: var(--erro-vermelho); /* Vermelho para Cancelar */
+            background-color: var(--erro-vermelho); 
             border-radius: 4px;
         }
 
@@ -137,7 +140,7 @@
             margin-top: 20px; 
             padding: 15px; 
             border: 1px solid var(--violeta); 
-            min-height: 60px;
+            min-height: 60px; 
             background-color: var(--cor-log); 
             border-radius: 4px;
             white-space: pre-wrap;
@@ -148,7 +151,7 @@
             margin-top: 15px; 
             padding: 15px; 
             border: 1px solid var(--azul-royal); 
-            background-color: var(--cor-container); /* Fundo branco para status */
+            background-color: var(--cor-container); 
             border-radius: 4px;
             color: #555;
             font-size: 0.95em;
@@ -172,7 +175,7 @@
             display: inline-block;
             margin-top: 30px; 
             padding: 18px 35px; 
-            background-color: var(--violeta); /* Violeta de destaque */
+            background-color: var(--violeta); 
             color: var(--branco);
             text-decoration: none;
             border-radius: 6px; 
@@ -195,7 +198,9 @@
 <body>
 
     
-<div class="header-image"></div>
+<div class="header-image-wrapper">
+    <img src="torrentum.jpg" alt="Logo Torrentum">
+</div>
 
     <div class="container">
         
@@ -234,7 +239,7 @@
                 currentTorrent.pause();
                 isPaused = true;
                 btn.textContent = 'Retomar';
-                btn.style.backgroundColor = 'var(--sucesso-verde)'; // Verde para Retomar (Ação positiva)
+                btn.style.backgroundColor = 'var(--sucesso-verde)'; // Verde para Retomar
                 btn.setAttribute('data-paused', 'true');
                 logElement.innerHTML = '<span class="log-warning">Torrent Pausado.</span>';
                 statusElement.innerHTML += '<br>STATUS: PAUSADO';
