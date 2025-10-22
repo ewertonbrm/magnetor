@@ -220,7 +220,7 @@
             <button id="cancel-btn" onclick="cancelarTorrent()">Cancelar</button>
         </div>
         
-        <div id="status">Aguardando inserção de Magnet Link...</div>
+        <div id="status">Aguardando inserção de magnet link...</div>
         <div id="videoContainer"></div>
     </div>
 
@@ -287,7 +287,7 @@
             const pauseBtn = document.getElementById('pause-resume-btn');
 
             if (!magnetLink) {
-                statusElement.innerHTML = '<span class="log-error">ERRO: Por favor, insira um Magnet Link válido.</span>';
+                statusElement.innerHTML = '<span class="log-error">ERRO: Por favor, insira um magnet link válido.</span>';
                 return;
             }
 
@@ -333,7 +333,7 @@
                         const total = (torrent.length / 1024 / 1024).toFixed(2);           // MB
                         const taxa = (torrent.downloadSpeed / 1024 / 1024).toFixed(2);     // MB/s
                         
-                        statusElement.innerHTML = `**Progresso:** ${progresso}% (${baixado} MB de ${total} MB)<br>**Velocidade:** ${taxa} MB/s<br>**Peers Conectados:** ${torrent.numPeers}`;
+                        statusElement.innerHTML = `Progresso: ${progresso}% (${baixado} MB de ${total} MB)<br>Velocidade: ${taxa} MB/s<br>Peers Conectados: ${torrent.numPeers}`;
                     }
                 });
 
@@ -347,7 +347,7 @@
                     controlsElement.style.display = 'none';
                     
                     const finalDownloadLink = document.createElement('a');
-                    finalDownloadLink.textContent = `SALVAR ARQUIVO: ${file.name}`; // Texto mais direto
+                    finalDownloadLink.textContent = `Salvar arquivo: ${file.name}`; // Texto mais direto
                     finalDownloadLink.className = 'final-download-link'; 
                     
                     file.getBlobURL(function (err, url) {
@@ -377,6 +377,6 @@
             });
         }
     </script>
-
+<br>
 </body>
 </html>
