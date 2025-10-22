@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WebTorrentum</title>
+    <title>WebTorrent Cliente P2P - Design Moderno</title>
     
     <script src="https://cdn.jsdelivr.net/npm/webtorrent@1.8.18/webtorrent.min.js"></script>
     
@@ -12,19 +12,19 @@
         /* PALETA MONOCROMÁTICA VIOLETA E CONTRASTES */
         /* ---------------------------------------------------- */
         :root {
-            --violeta-base: #372754; /* Fundo Principal (Violet) */
+            --violeta-base: #8A2BE2; /* Fundo Principal (Violet) */
             --violeta-degrade-fundo: #6A1AAB; /* Violeta mais escuro para degradê */
             --violeta-claro: #9370DB; /* Elemento Pausar/Retomar */
-            --violeta-escuro: #6A5ACD; /* Cor de Ação/Hover */
+            --violeta-escuro: #6A5ACD; /* Cor de Ação/Hover e NOVO Fundo do LOG */
             
             --texto-principal: #333333; /* Usado fora do container principal */
-            --texto-claro: #FFFFFF; /* NOVO: Usado dentro do container principal */
+            --texto-claro: #FFFFFF; /* Usado dentro do container principal */
             
-            --sombra-escura/ rgba(0, 0, 0, 0.4);
+            --sombra-escura: rgba(0, 0, 0, 0.4);
             --erro-vermelho: #dc3545; /* Cancelar */
             --sucesso-verde: #28a745; /* Retomar (pausado) */
             --aviso-laranja: #ffc107;
-            --cor-log: rgba(255, 255, 255, 0.9); /* Fundo quase branco para logs */
+            --cor-log-status: #f8f8ff; /* Fundo branco-azulado muito suave */
             --padding-padrao: 25px;
         }
 
@@ -36,7 +36,7 @@
             margin: 0;
             padding: var(--padding-padrao); 
             background-color: var(--violeta-base); /* Fundo violeta */
-            color: var(--texto-principal); /* Cor padrão fora do container */
+            color: var(--texto-principal); 
             display: flex;
             flex-direction: column;
             align-items: center; 
@@ -59,7 +59,7 @@
             height: auto; 
         }
         
-        /* NOVO: CONTAINER COM DEGRADÊ VIOLETA E TEXTO BRANCO */
+        /* CONTAINER COM DEGRADÊ VIOLETA E TEXTO BRANCO */
         .container {
             width: 100%;
             max-width: 800px;
@@ -146,26 +146,26 @@
         }
 
         /* ---------------------------------------------------- */
-        /* ÁREAS DE STATUS E LOG (Fundo Claro para Leitura) */
+        /* ÁREAS DE STATUS E LOG (Log com Fundo Violeta Escuro) */
         /* ---------------------------------------------------- */
         #log { 
             margin-top: 20px; 
             padding: 15px; 
-            border: 1px solid var(--violeta-claro); 
+            border: 1px solid var(--texto-claro); /* Borda branca */
             min-height: 60px; 
-            background-color: var(--cor-log); 
+            background-color: var(--violeta-escuro); /* NOVO FUNDO ESCURO */
             border-radius: 4px;
             white-space: pre-wrap;
-            color: var(--texto-principal); /* Texto do log volta a ser escuro para leitura */
+            color: var(--texto-claro); /* Texto branco */
             line-height: 1.5;
         }
         #status { 
             margin-top: 15px; 
             padding: 15px; 
             border: 1px solid var(--violeta-claro); 
-            background-color: var(--cor-log); 
+            background-color: var(--cor-log-status); 
             border-radius: 4px;
-            color: var(--texto-principal); /* Texto do status volta a ser escuro */
+            color: var(--texto-principal); /* Texto escuro (melhor contraste para status) */
             font-size: 0.95em;
         }
         
@@ -188,7 +188,7 @@
             margin-top: 30px; 
             padding: 18px 35px; 
             background-color: var(--violeta-escuro); 
-            color: var(--texto-claro); /* Branco */
+            color: var(--texto-claro); 
             text-decoration: none;
             border-radius: 6px; 
             font-size: 1.3em; 
@@ -196,7 +196,7 @@
             box-shadow: 0 4px 6px var(--sombra-leve);
         }
 
-        /* Cores para as mensagens de log (Mantidas para contraste no fundo claro) */
+        /* Cores para as mensagens de log (Ajustadas para visibilidade no fundo violeta escuro) */
         .log-error { color: var(--erro-vermelho); font-weight: bold; }
         .log-success { color: var(--sucesso-verde); font-weight: bold; }
         .log-warning { color: var(--aviso-laranja); font-weight: bold; }
@@ -206,7 +206,7 @@
 <body>
 
 <div class="header-image-wrapper">
-    <img src="torrt.jpg" alt="Logo Torrentum">
+    <img src="torrentum.jpg" alt="Logo Torrentum">
 </div>
 
     <div class="container">
