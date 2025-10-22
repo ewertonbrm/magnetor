@@ -15,16 +15,15 @@
             --violeta-base: #372754; /* Fundo Principal (Violet) */
             --violeta-degrade-fundo: #6A1AAB; /* Violeta mais escuro para degradê */
             --violeta-claro: #9370DB; /* Elemento Pausar/Retomar */
-            --violeta-escuro: #6A5ACD; /* Cor de Ação/Hover e Fundo do LOG */
+            --violeta-escuro: #6A5ACD; /* Cor de Ação/Hover e Fundo do LOG/STATUS */
             
-            --texto-principal: #333333; /* Usado fora do container principal */
-            --texto-claro: #FFFFFF; /* NOVO: Usado dentro do container principal */
+            --texto-principal: #333333; 
+            --texto-claro: #FFFFFF; /* Texto BRANCO para contraste no container */
             
-            --sombra-escura: rgba(0, 0, 0, 0.4); 
+            --sombra-escura: rgba(0, 0, 0, 0.4); /* Corrigido a sintaxe da sombra */
             --erro-vermelho: #dc3545; /* Cancelar */
             --sucesso-verde: #28a745; /* Retomar (pausado) */
             --aviso-laranja: #ffc107;
-            --cor-log-status-fundo: #f8f8ff; /* Fundo branco-azulado muito suave para status */
             --padding-padrao: 25px;
         }
 
@@ -35,8 +34,8 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
             margin: 0;
             padding: var(--padding-padrao); 
-            background-color: var(--violeta-base); /* Fundo violeta */
-            color: var(--texto-principal); /* Cor padrão fora do container */
+            background-color: var(--violeta-base); 
+            color: var(--texto-principal); 
             display: flex;
             flex-direction: column;
             align-items: center; 
@@ -49,7 +48,6 @@
             width: 100%;
             max-width: 800px; 
             margin-bottom: 20px;
-            /* box-shadow: 0 4px 12px var(--sombra-escura); <-- REMOVIDA */
             border-radius: 8px;
             overflow: hidden;
         }
@@ -59,11 +57,10 @@
             height: auto; 
         }
         
-        /* NOVO: CONTAINER COM DEGRADÊ VIOLETA E TEXTO BRANCO */
+        /* CONTAINER COM DEGRADÊ VIOLETA E TEXTO BRANCO */
         .container {
             width: 100%;
             max-width: 800px;
-            /* Degradê Violeta */
             background: linear-gradient(145deg, var(--violeta-base), var(--violeta-degrade-fundo));
             padding: var(--padding-padrao);
             border-radius: 8px;
@@ -83,16 +80,16 @@
         input[type="text"] { 
             width: 100%; 
             padding: 15px; 
-            border: 2px solid var(--texto-claro); /* Borda branca */
+            border: 2px solid var(--texto-claro); 
             border-radius: 6px;
             font-size: 16px;
             margin-bottom: 10px; 
             box-sizing: border-box;
-            background-color: rgba(255, 255, 255, 0.1); /* Fundo levemente transparente */
-            color: var(--texto-claro); /* Texto digitado é branco */
+            background-color: rgba(255, 255, 255, 0.1); 
+            color: var(--texto-claro); 
         }
         input[type="text"]::placeholder {
-            color: rgba(255, 255, 255, 0.7); /* Placeholder semi-transparente */
+            color: rgba(255, 255, 255, 0.7); 
         }
         input[type="text"]:focus {
             outline: none;
@@ -112,7 +109,7 @@
             font-weight: 600;
             transition: background-color 0.3s ease, transform 0.2s ease;
             white-space: nowrap; 
-            background-color: var(--violeta-escuro); /* Base escura para botões */
+            background-color: var(--violeta-escuro); 
         }
         button:hover {
             filter: brightness(1.2); 
@@ -139,36 +136,34 @@
             background-color: var(--violeta-claro); 
         }
         #pause-resume-btn[data-paused="true"] { 
-            background-color: var(--sucesso-verde); /* Verde (Contraste) */
+            background-color: var(--sucesso-verde); 
         }
         #cancel-btn {
             background-color: var(--erro-vermelho); 
         }
 
         /* ---------------------------------------------------- */
-        /* ÁREAS DE STATUS E LOG (Log com Fundo Violeta Escuro) */
+        /* ÁREAS DE STATUS E LOG (Design Unificado e Escuro) */
         /* ---------------------------------------------------- */
-        #log { 
-            margin-top: 20px; 
-            padding: 15px; 
-            border: 1px solid var(--texto-claro); /* Borda branca */
-            min-height: 60px; 
-            background-color: var(--violeta-escuro); /* Fundo violeta escuro (Corrigido) */
-            border-radius: 4px;
-            white-space: pre-wrap;
-            color: var(--texto-claro); /* Texto BRANCO para contraste */
-            line-height: 1.5;
-        }
-        #status { 
+        
+        /* NOVO: Estilo unificado para LOG e STATUS */
+        #log, #status { 
             margin-top: 15px; 
             padding: 15px; 
-            border: 1px solid var(--violeta-claro); 
-            background-color: var(--cor-log-status-fundo); 
+            border: 1px solid var(--texto-claro); /* Borda branca */
+            min-height: 40px; 
+            background-color: var(--violeta-escuro); /* Fundo violeta escuro unificado */
             border-radius: 4px;
-            color: var(--texto-principal); /* Texto escuro (melhor contraste para status) */
+            white-space: pre-wrap;
+            color: var(--texto-claro); /* Texto BRANCO unificado */
+            line-height: 1.5;
             font-size: 0.95em;
         }
         
+        /* Ajuste de margem específica para o log */
+        #log { margin-top: 20px; }
+
+
         /* ---------------------------------------------------- */
         /* RENDERIZAÇÃO E LINK FINAL */
         /* ---------------------------------------------------- */
@@ -196,12 +191,15 @@
             box-shadow: 0 4px 6px var(--sombra-escura);
         }
 
-        /* Cores para as mensagens de log (Ajustadas para serem visíveis no fundo escuro do #log) */
-        /* Usar cores vivas para contraste */
+        /* Cores para as mensagens de log (Usam cores vivas para dar destaque no fundo BRANCO/CLARO do log) */
+        /* O texto base do log é branco, mas os spans usam cores para sinalização */
         #log .log-error { color: var(--erro-vermelho); font-weight: bold; }
         #log .log-success { color: var(--sucesso-verde); font-weight: bold; }
         #log .log-warning { color: var(--aviso-laranja); font-weight: bold; }
-        #log .log-cancelled { color: var(--erro-vermelho); font-weight: bold; }
+        #log .log-cancelled { color: var(--erro-vermelho); font-weight: bold; } /* Mantém o vermelho para cancelamento */
+
+        /* Garante que o texto dentro do status seja branco */
+        #status, #log { color: var(--texto-claro); }
     </style>
 </head>
 <body>
