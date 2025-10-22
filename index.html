@@ -3,27 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WebTorrent Cliente P2P</title>
+    <title>WebTorrent Cliente P2P - Design Moderno</title>
     
     <script src="https://cdn.jsdelivr.net/npm/webtorrent@1.8.18/webtorrent.min.js"></script>
     
     <style>
         /* ---------------------------------------------------- */
-        /* PALETA DE CORES E VARIÁVEIS CSS */
+        /* PALETA MONOCROMÁTICA VIOLETA E CONTRASTES */
         /* ---------------------------------------------------- */
         :root {
-            --cor-base-fundo: #FAF0E6; /* Sépia/Bege muito leve */
-            --cor-container: #FFFFFF;
-            --azul-royal: #4169E1;
-            --violeta: #8A2BE2;
-            --texto-principal: #333333;
-            --sombra-leve: rgba(0, 0, 0, 0.1);
-            --sombra-media: rgba(0, 0, 0, 0.2);
-            --erro-vermelho: #dc3545;
-            --sucesso-verde: #28a745;
+            --violeta-base: #8A2BE2; /* Fundo Principal (Violet) */
+            --violeta-degrade-fundo: #6A1AAB; /* Violeta mais escuro para degradê */
+            --violeta-claro: #9370DB; /* Elemento Pausar/Retomar */
+            --violeta-escuro: #6A5ACD; /* Cor de Ação/Hover */
+            
+            --texto-principal: #333333; /* Usado fora do container principal */
+            --texto-claro: #FFFFFF; /* NOVO: Usado dentro do container principal */
+            
+            --sombra-escura: rgba(0, 0, 0, 0.4);
+            --erro-vermelho: #dc3545; /* Cancelar */
+            --sucesso-verde: #28a745; /* Retomar (pausado) */
             --aviso-laranja: #ffc107;
-            --cor-log: #f2f6ff; /* Fundo levemente azulado para logs */
-            --padding-padrao: 30px;
+            --cor-log: rgba(255, 255, 255, 0.9); /* Fundo quase branco para logs */
+            --padding-padrao: 25px;
         }
 
         /* ---------------------------------------------------- */
@@ -32,62 +34,70 @@
         body { 
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
             margin: 0;
-            padding: var(--padding-padrao); /* Adiciona margem em torno de todo o corpo */
-            background-color: var(--cor-base-fundo);
-            color: var(--texto-principal);
+            padding: var(--padding-padrao); 
+            background-color: var(--violeta-base); /* Fundo violeta */
+            color: var(--texto-principal); /* Cor padrão fora do container */
             display: flex;
             flex-direction: column;
-            align-items: center; /* Centraliza o conteúdo horizontalmente */
+            align-items: center; 
             min-height: 100vh;
-            box-sizing: border-box; /* Garante que o padding não adicione largura */
+            box-sizing: border-box;
         }
         
-        /* Topo com Imagem COMPLETA */
+        /* Imagem de Topo */
         .header-image-wrapper {
             width: 100%;
-            max-width: 800px; /* Largura máxima igual ao container */
+            max-width: 800px; 
             margin-bottom: 20px;
-            box-shadow: 0 4px 12px var(--sombra-media);
+            box-shadow: 0 4px 12px var(--sombra-escura);
             border-radius: 8px;
-            overflow: hidden; /* Garante que a imagem respeite o border-radius */
+            overflow: hidden;
         }
         .header-image-wrapper img {
             display: block;
             width: 100%;
-            height: auto; /* Garante que a imagem seja exibida por inteiro */
+            height: auto; 
         }
         
+        /* NOVO: CONTAINER COM DEGRADÊ VIOLETA E TEXTO BRANCO */
         .container {
             width: 100%;
             max-width: 800px;
-            background-color: var(--cor-container);
+            /* Degradê Violeta */
+            background: linear-gradient(145deg, var(--violeta-base), var(--violeta-degrade-fundo));
             padding: var(--padding-padrao);
             border-radius: 8px;
-            box-shadow: 0 4px 12px var(--sombra-media);
-            box-sizing: border-box; /* Inclui padding na largura total */
+            box-shadow: 0 4px 12px var(--sombra-escura);
+            box-sizing: border-box;
+            color: var(--texto-claro); /* TODO O TEXTO DO CONTAINER É BRANCO */
         }
         
         /* ---------------------------------------------------- */
-        /* ÁREA DE INPUT E BOTÃO PRINCIPAL */
+        /* ÁREA DE INPUT E BOTÃO PRINCIPAL (EMPILHADO) */
         /* ---------------------------------------------------- */
         #input-area { 
-            display: flex; 
-            border: 2px solid var(--azul-royal); 
-            border-radius: 6px;
-            overflow: hidden; 
-            margin-bottom: 20px;
+            display: block; 
+            margin-bottom: 10px;
         }
+        
         input[type="text"] { 
-            flex-grow: 1; 
+            width: 100%; 
             padding: 15px; 
-            border: none; 
+            border: 2px solid var(--texto-claro); /* Borda branca */
+            border-radius: 6px;
             font-size: 16px;
-            color: var(--texto-principal);
-            background-color: var(--cor-container); 
+            margin-bottom: 10px; 
+            box-sizing: border-box;
+            background-color: rgba(255, 255, 255, 0.1); /* Fundo levemente transparente */
+            color: var(--texto-claro); /* Texto digitado é branco */
+        }
+        input[type="text"]::placeholder {
+            color: rgba(255, 255, 255, 0.7); /* Placeholder semi-transparente */
         }
         input[type="text"]:focus {
             outline: none;
-            background-color: var(--cor-log);
+            background-color: rgba(255, 255, 255, 0.2);
+            border-color: var(--texto-claro);
         }
 
         /* ---------------------------------------------------- */
@@ -95,65 +105,67 @@
         /* ---------------------------------------------------- */
         button { 
             padding: 15px 25px; 
-            color: var(--branco); 
+            color: var(--texto-claro); 
             border: none; 
             cursor: pointer;
             font-size: 16px;
             font-weight: 600;
             transition: background-color 0.3s ease, transform 0.2s ease;
             white-space: nowrap; 
+            background-color: var(--violeta-escuro); /* Base escura para botões */
         }
         button:hover {
-            filter: brightness(0.9); 
+            filter: brightness(1.2); 
             transform: translateY(-1px); 
         }
 
+        /* Botão "Baixar Torrent" */
         #download-btn {
-            background-color: var(--violeta); 
-            border-radius: 0 6px 6px 0;
+            width: 100%; 
+            background-color: var(--violeta-escuro); 
+            border-radius: 6px;
         }
         
         #controls { 
-            margin-top: 25px; 
+            margin-top: 20px; 
             text-align: center; 
             display: flex;
             justify-content: center;
-            gap: 15px; 
+            gap: 15px;
         }
-
+        
+        /* Botão Pausar/Retomar */
         #pause-resume-btn {
-            background-color: var(--azul-royal); 
-            border-radius: 4px;
+            background-color: var(--violeta-claro); 
         }
         #pause-resume-btn[data-paused="true"] { 
-            background-color: var(--sucesso-verde);
+            background-color: var(--sucesso-verde); /* Verde (Contraste) */
         }
         #cancel-btn {
             background-color: var(--erro-vermelho); 
-            border-radius: 4px;
         }
 
         /* ---------------------------------------------------- */
-        /* ÁREAS DE STATUS E LOG */
+        /* ÁREAS DE STATUS E LOG (Fundo Claro para Leitura) */
         /* ---------------------------------------------------- */
         #log { 
             margin-top: 20px; 
             padding: 15px; 
-            border: 1px solid var(--violeta); 
+            border: 1px solid var(--violeta-claro); 
             min-height: 60px; 
             background-color: var(--cor-log); 
             border-radius: 4px;
             white-space: pre-wrap;
-            color: var(--texto-principal);
+            color: var(--texto-principal); /* Texto do log volta a ser escuro para leitura */
             line-height: 1.5;
         }
         #status { 
             margin-top: 15px; 
             padding: 15px; 
-            border: 1px solid var(--azul-royal); 
-            background-color: var(--cor-container); 
+            border: 1px solid var(--violeta-claro); 
+            background-color: var(--cor-log); 
             border-radius: 4px;
-            color: #555;
+            color: var(--texto-principal); /* Texto do status volta a ser escuro */
             font-size: 0.95em;
         }
         
@@ -175,20 +187,16 @@
             display: inline-block;
             margin-top: 30px; 
             padding: 18px 35px; 
-            background-color: var(--violeta); 
-            color: var(--branco);
+            background-color: var(--violeta-escuro); 
+            color: var(--texto-claro); /* Branco */
             text-decoration: none;
             border-radius: 6px; 
             font-size: 1.3em; 
             font-weight: bold;
             box-shadow: 0 4px 6px var(--sombra-leve);
         }
-        #videoContainer a.final-download-link:hover {
-            filter: brightness(0.9);
-            transform: translateY(-2px);
-        }
 
-        /* Cores para as mensagens de log (Melhor contraste) */
+        /* Cores para as mensagens de log (Mantidas para contraste no fundo claro) */
         .log-error { color: var(--erro-vermelho); font-weight: bold; }
         .log-success { color: var(--sucesso-verde); font-weight: bold; }
         .log-warning { color: var(--aviso-laranja); font-weight: bold; }
@@ -197,7 +205,6 @@
 </head>
 <body>
 
-    
 <div class="header-image-wrapper">
     <img src="torrentum.jpg" alt="Logo Torrentum">
 </div>
@@ -206,7 +213,7 @@
         
         <div id="input-area">
             <input type="text" id="magnetLink" placeholder="Insira o Magnet Link aqui..." value="">
-            <button id="download-btn" onclick="iniciarDownload()">Baixar Torrent</button>
+            <button id="download-btn" onclick="iniciarDownload()">BAIXAR TORRENT</button>
         </div>
 
         <div id="controls" style="display: none;">
@@ -248,7 +255,7 @@
                 currentTorrent.resume();
                 isPaused = false;
                 btn.textContent = 'Pausar';
-                btn.style.backgroundColor = 'var(--azul-royal)'; // Azul Royal para Pausar
+                btn.style.backgroundColor = 'var(--violeta-claro)'; // Violeta Claro para Pausar
                 btn.setAttribute('data-paused', 'false');
                 logElement.innerHTML = '<span class="log-success">Torrent Retomado.</span>';
                 // Remove o status PAUSADO da interface
@@ -314,7 +321,7 @@
             videoContainer.innerHTML = ''; 
             controlsElement.style.display = 'flex'; 
             pauseBtn.textContent = 'Pausar';
-            pauseBtn.style.backgroundColor = 'var(--azul-royal)';
+            pauseBtn.style.backgroundColor = 'var(--violeta-claro)';
             pauseBtn.setAttribute('data-paused', 'false');
             isPaused = false; // Garante que o estado seja ativo ao iniciar
 
