@@ -15,8 +15,7 @@
             --violeta-base: #372754; /* Fundo Principal (Violet) */
             --violeta-degrade-fundo: #6A1AAB; /* Violeta mais escuro para degradê no container */
             --violeta-claro: #9370DB; /* Elemento Pausar/Retomar */
-            --violeta-escuro: #6A5ACD; /* Cor de Ação/Hover e botões padrão */
-            --violeta-muito-escuro: #4D2F7B; /* NOVO: Para fundo do LOG e STATUS */
+            --violeta-escuro: #6A5ACD; /* Cor de Ação/Hover e Fundo do LOG/STATUS */
             
             --texto-principal: #333333; 
             --texto-claro: #FFFFFF; /* Texto BRANCO para contraste no container */
@@ -144,21 +143,24 @@
         }
 
         /* ---------------------------------------------------- */
-        /* ÁREAS DE STATUS E LOG (Design Unificado e Escuro) */
+        /* ÁREAS DE STATUS E LOG (Design Unificado e Centralizado) */
         /* ---------------------------------------------------- */
         
-        /* NOVO: Estilo unificado para LOG e STATUS com --violeta-muito-escuro */
+        /* Estilo unificado para LOG e STATUS com --violeta-muito-escuro */
         #log, #status { 
             margin-top: 15px; 
             padding: 15px; 
             border: 1px solid var(--texto-claro); 
             min-height: 40px; 
-            background-color: var(--violeta-muito-escuro); /* Fundo violeta MUITO escuro */
+            background-color: var(--violeta-muito-escuro); 
             border-radius: 4px;
             white-space: pre-wrap;
-            color: var(--texto-claro); /* Texto BRANCO unificado */
+            color: var(--texto-claro); 
             line-height: 1.5;
             font-size: 0.95em;
+            
+            /* NOVO: Centraliza o texto nas caixas */
+            text-align: center; 
         }
         
         /* Ajuste de margem específica para o log */
