@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WebTorrentum</title>
+    <title>Torrentum</title>
     
     <script src="https://cdn.jsdelivr.net/npm/webtorrent@1.8.18/webtorrent.min.js"></script>
     
@@ -13,14 +13,15 @@
         /* ---------------------------------------------------- */
         :root {
             --violeta-base: #372754; /* Fundo Principal (Violet) */
-            --violeta-degrade-fundo: #6A1AAB; /* Violeta mais escuro para degradê */
+            --violeta-degrade-fundo: #6A1AAB; /* Violeta mais escuro para degradê no container */
             --violeta-claro: #9370DB; /* Elemento Pausar/Retomar */
-            --violeta-escuro: #6A5ACD; /* Cor de Ação/Hover e Fundo do LOG/STATUS */
+            --violeta-escuro: #6A5ACD; /* Cor de Ação/Hover e botões padrão */
+            --violeta-muito-escuro: #4D2F7B; /* NOVO: Para fundo do LOG e STATUS */
             
             --texto-principal: #333333; 
             --texto-claro: #FFFFFF; /* Texto BRANCO para contraste no container */
             
-            --sombra-escura: rgba(0, 0, 0, 0.4); /* Corrigido a sintaxe da sombra */
+            --sombra-escura: rgba(0, 0, 0, 0.4); 
             --erro-vermelho: #dc3545; /* Cancelar */
             --sucesso-verde: #28a745; /* Retomar (pausado) */
             --aviso-laranja: #ffc107;
@@ -146,13 +147,13 @@
         /* ÁREAS DE STATUS E LOG (Design Unificado e Escuro) */
         /* ---------------------------------------------------- */
         
-        /* NOVO: Estilo unificado para LOG e STATUS */
+        /* NOVO: Estilo unificado para LOG e STATUS com --violeta-muito-escuro */
         #log, #status { 
             margin-top: 15px; 
             padding: 15px; 
-            border: 1px solid var(--texto-claro); /* Borda branca */
+            border: 1px solid var(--texto-claro); 
             min-height: 40px; 
-            background-color: var(--violeta-escuro); /* Fundo violeta escuro unificado */
+            background-color: var(--violeta-muito-escuro); /* Fundo violeta MUITO escuro */
             border-radius: 4px;
             white-space: pre-wrap;
             color: var(--texto-claro); /* Texto BRANCO unificado */
@@ -191,12 +192,12 @@
             box-shadow: 0 4px 6px var(--sombra-escura);
         }
 
-        /* Cores para as mensagens de log (Usam cores vivas para dar destaque no fundo BRANCO/CLARO do log) */
+        /* Cores para as mensagens de log (Ajustadas para visibilidade no fundo MUITO escuro do #log) */
         /* O texto base do log é branco, mas os spans usam cores para sinalização */
         #log .log-error { color: var(--erro-vermelho); font-weight: bold; }
         #log .log-success { color: var(--sucesso-verde); font-weight: bold; }
         #log .log-warning { color: var(--aviso-laranja); font-weight: bold; }
-        #log .log-cancelled { color: var(--erro-vermelho); font-weight: bold; } /* Mantém o vermelho para cancelamento */
+        #log .log-cancelled { color: var(--erro-vermelho); font-weight: bold; }
 
         /* Garante que o texto dentro do status seja branco */
         #status, #log { color: var(--texto-claro); }
