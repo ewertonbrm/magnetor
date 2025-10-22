@@ -15,16 +15,16 @@
             --violeta-base: #372754; /* Fundo Principal (Violet) */
             --violeta-degrade-fundo: #6A1AAB; /* Violeta mais escuro para degradê */
             --violeta-claro: #9370DB; /* Elemento Pausar/Retomar */
-            --violeta-escuro: #6A5ACD; /* Cor de Ação/Hover */
+            --violeta-escuro: #6A5ACD; /* Cor de Ação/Hover e NOVO Fundo do LOG */
             
             --texto-principal: #333333; /* Usado fora do container principal */
             --texto-claro: #FFFFFF; /* NOVO: Usado dentro do container principal */
             
-            --sombra-escura/ rgba(0, 0, 0, 0.4);
+            --sombra-escura: rgba(0, 0, 0, 0.4); /* Corrigida a sintaxe: tirado o '/' */
             --erro-vermelho: #dc3545; /* Cancelar */
             --sucesso-verde: #28a745; /* Retomar (pausado) */
             --aviso-laranja: #ffc107;
-            --cor-log: rgba(255, 255, 255, 0.9); /* Fundo quase branco para logs */
+            --cor-log-status-fundo: #f8f8ff; /* Fundo branco-azulado muito suave para status */
             --padding-padrao: 25px;
         }
 
@@ -146,26 +146,26 @@
         }
 
         /* ---------------------------------------------------- */
-        /* ÁREAS DE STATUS E LOG (Fundo Claro para Leitura) */
+        /* ÁREAS DE STATUS E LOG (Log com Fundo Violeta Escuro) */
         /* ---------------------------------------------------- */
         #log { 
             margin-top: 20px; 
             padding: 15px; 
-            border: 1px solid var(--violeta-claro); 
+            border: 1px solid var(--texto-claro); /* Borda branca */
             min-height: 60px; 
-            background-color: var(--cor-log); 
+            background-color: var(--violeta-escuro); /* Fundo violeta escuro (Corrigido) */
             border-radius: 4px;
             white-space: pre-wrap;
-            color: var(--texto-principal); /* Texto do log volta a ser escuro para leitura */
+            color: var(--texto-claro); /* Texto BRANCO para contraste */
             line-height: 1.5;
         }
         #status { 
             margin-top: 15px; 
             padding: 15px; 
             border: 1px solid var(--violeta-claro); 
-            background-color: var(--cor-log); 
+            background-color: var(--cor-log-status-fundo); 
             border-radius: 4px;
-            color: var(--texto-principal); /* Texto do status volta a ser escuro */
+            color: var(--texto-principal); /* Texto escuro (melhor contraste para status) */
             font-size: 0.95em;
         }
         
@@ -181,26 +181,27 @@
             max-width: 640px;
             margin-top: 15px;
             border-radius: 4px;
-            box-shadow: 0 4px 8px var(--sombra-leve);
+            box-shadow: 0 4px 8px var(--sombra-escura); /* Corrigi para usar a sombra escura */
         }
         #videoContainer a.final-download-link {
             display: inline-block;
             margin-top: 30px; 
             padding: 18px 35px; 
             background-color: var(--violeta-escuro); 
-            color: var(--texto-claro); /* Branco */
+            color: var(--texto-claro); 
             text-decoration: none;
             border-radius: 6px; 
             font-size: 1.3em; 
             font-weight: bold;
-            box-shadow: 0 4px 6px var(--sombra-leve);
+            box-shadow: 0 4px 6px var(--sombra-escura);
         }
 
-        /* Cores para as mensagens de log (Mantidas para contraste no fundo claro) */
-        .log-error { color: var(--erro-vermelho); font-weight: bold; }
-        .log-success { color: var(--sucesso-verde); font-weight: bold; }
-        .log-warning { color: var(--aviso-laranja); font-weight: bold; }
-        .log-cancelled { color: var(--erro-vermelho); font-weight: bold; }
+        /* Cores para as mensagens de log (Ajustadas para serem visíveis no fundo escuro do #log) */
+        /* Usar cores vivas para contraste */
+        #log .log-error { color: var(--erro-vermelho); font-weight: bold; }
+        #log .log-success { color: var(--sucesso-verde); font-weight: bold; }
+        #log .log-warning { color: var(--aviso-laranja); font-weight: bold; }
+        #log .log-cancelled { color: var(--erro-vermelho); font-weight: bold; }
     </style>
 </head>
 <body>
