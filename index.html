@@ -15,12 +15,12 @@
             --violeta-base: #372754; /* Fundo Principal (Violet) */
             --violeta-degrade-fundo: #6A1AAB; /* Violeta mais escuro para degradê */
             --violeta-claro: #9370DB; /* Elemento Pausar/Retomar */
-            --violeta-escuro: #6A5ACD; /* Cor de Ação/Hover e NOVO Fundo do LOG */
+            --violeta-escuro: #6A5ACD; /* Cor de Ação/Hover e Fundo do LOG */
             
             --texto-principal: #333333; /* Usado fora do container principal */
             --texto-claro: #FFFFFF; /* NOVO: Usado dentro do container principal */
             
-            --sombra-escura: rgba(0, 0, 0, 0.4); /* Corrigida a sintaxe: tirado o '/' */
+            --sombra-escura: rgba(0, 0, 0, 0.4); 
             --erro-vermelho: #dc3545; /* Cancelar */
             --sucesso-verde: #28a745; /* Retomar (pausado) */
             --aviso-laranja: #ffc107;
@@ -44,12 +44,12 @@
             box-sizing: border-box;
         }
         
-        /* Imagem de Topo */
+        /* Imagem de Topo - BOX-SHADOW REMOVIDA AQUI */
         .header-image-wrapper {
             width: 100%;
             max-width: 800px; 
             margin-bottom: 20px;
-            box-shadow: 0 4px 12px var(--sombra-escura);
+            /* box-shadow: 0 4px 12px var(--sombra-escura); <-- REMOVIDA */
             border-radius: 8px;
             overflow: hidden;
         }
@@ -181,7 +181,7 @@
             max-width: 640px;
             margin-top: 15px;
             border-radius: 4px;
-            box-shadow: 0 4px 8px var(--sombra-escura); /* Corrigi para usar a sombra escura */
+            box-shadow: 0 4px 8px var(--sombra-escura);
         }
         #videoContainer a.final-download-link {
             display: inline-block;
@@ -405,7 +405,7 @@
             // --- EVENTO 5: ERRO GERAL DO CLIENTE ---
             client.on('error', function (err) {
                 logElement.innerHTML = `<span class="log-error">ERRO Geral do Cliente: ${err.message}</span>`;
-                console.error('Erro no Cliente:', err);
+                    console.error('Erro no Cliente:', err);
                 controlsElement.style.display = 'none';
             });
         }
