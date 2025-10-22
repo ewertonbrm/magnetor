@@ -159,7 +159,7 @@
             line-height: 1.5;
             font-size: 0.95em;
             
-            /* NOVO: Centraliza o texto nas caixas */
+            /* PROPRIEDADE CENTRALIZADORA */
             text-align: center; 
         }
         
@@ -194,7 +194,7 @@
             box-shadow: 0 4px 6px var(--sombra-escura);
         }
 
-        /* Cores para as mensagens de log (Ajustadas para visibilidade no fundo MUITO escuro do #log) */
+        /* Cores para as mensagens de log (Usam cores vivas para dar destaque no fundo BRANCO/CLARO do log) */
         /* O texto base do log é branco, mas os spans usam cores para sinalização */
         #log .log-error { color: var(--erro-vermelho); font-weight: bold; }
         #log .log-success { color: var(--sucesso-verde); font-weight: bold; }
@@ -360,11 +360,8 @@
                         const total = (torrent.length / 1024 / 1024).toFixed(2);           // MB
                         const taxa = (torrent.downloadSpeed / 1024 / 1024).toFixed(2);     // MB/s
                         
-                        statusElement.innerHTML = `
-                            **Progresso:** ${progresso}% (${baixado} MB de ${total} MB)<br>
-                            **Velocidade:** ${taxa} MB/s<br>
-                            **Peers Conectados:** ${torrent.numPeers}
-                        `;
+                        // NOVO: String de template limpa para garantir a centralização
+                        statusElement.innerHTML = `**Progresso:** ${progresso}% (${baixado} MB de ${total} MB)<br>**Velocidade:** ${taxa} MB/s<br>**Peers Conectados:** ${torrent.numPeers}`;
                     }
                 });
 
