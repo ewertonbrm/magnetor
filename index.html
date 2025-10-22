@@ -333,7 +333,7 @@
                         const total = (torrent.length / 1024 / 1024).toFixed(2);           // MB
                         const taxa = (torrent.downloadSpeed / 1024 / 1024).toFixed(2);     // MB/s
                         
-                        statusElement.innerHTML = `Progresso: ${progresso}% (${baixado} MB de ${total} MB)<br>Velocidade: ${taxa} MB/s<br>Peers Conectados: ${torrent.numPeers}`;
+                        statusElement.innerHTML = `Progresso: ${progresso}% (${baixado} MB de ${total} MB)<br>Velocidade: ${taxa} MB/s<br>Peers conectados: ${torrent.numPeers}`;
                     }
                 });
 
@@ -347,7 +347,7 @@
                     controlsElement.style.display = 'none';
                     
                     const finalDownloadLink = document.createElement('a');
-                    finalDownloadLink.textContent = `Salvar arquivo: ${file.name}`; // Texto mais direto
+                    finalDownloadLink.textContent = `Download: ${file.name}`; // Texto mais direto
                     finalDownloadLink.className = 'final-download-link'; 
                     
                     file.getBlobURL(function (err, url) {
