@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Torrentum</title>
+    <title>WebTorrentum</title>
     
     <script src="https://cdn.jsdelivr.net/npm/webtorrent@1.8.18/webtorrent.min.js"></script>
     
@@ -143,14 +143,13 @@
         }
 
         /* ---------------------------------------------------- */
-        /* ÁREAS DE STATUS E LOG (Design Unificado e Centralizado) */
+        /* ÁREAS DE STATUS (AGORA INCLUI MENSAGENS DE LOG) */
         /* ---------------------------------------------------- */
         
-        /* Estilo unificado para LOG e STATUS com --violeta-muito-escuro */
-        #log, #status { 
-            margin-top: 15px; 
+        #status { 
+            margin-top: 20px; /* Aumenta a margem para atuar como o antigo log */
             padding: 15px; 
-            border: 1px solid var(--texto-claro); 
+            border: 1px solid var(--texto-claro); /* Borda branca */
             min-height: 40px; 
             background-color: var(--violeta-muito-escuro); 
             border-radius: 4px;
@@ -158,51 +157,15 @@
             color: var(--texto-claro); 
             line-height: 1.5;
             font-size: 0.95em;
-            
-            /* PROPRIEDADE CENTRALIZADORA */
             text-align: center; 
         }
         
-        /* Ajuste de margem específica para o log */
-        #log { margin-top: 20px; }
+        /* Cores para as mensagens de status */
+        .log-error { color: var(--erro-vermelho); font-weight: bold; }
+        .log-success { color: var(--sucesso-verde); font-weight: bold; }
+        .log-warning { color: var(--aviso-laranja); font-weight: bold; }
+        .log-cancelled { color: var(--erro-vermelho); font-weight: bold; }
 
-
-        /* ---------------------------------------------------- */
-        /* RENDERIZAÇÃO E LINK FINAL */
-        /* ---------------------------------------------------- */
-        #videoContainer {
-            margin-top: 30px;
-            text-align: center;
-        }
-        #videoContainer video, #videoContainer audio {
-            width: 100%;
-            max-width: 640px;
-            margin-top: 15px;
-            border-radius: 4px;
-            box-shadow: 0 4px 8px var(--sombra-escura);
-        }
-        #videoContainer a.final-download-link {
-            display: inline-block;
-            margin-top: 30px; 
-            padding: 18px 35px; 
-            background-color: var(--violeta-escuro); 
-            color: var(--texto-claro); 
-            text-decoration: none;
-            border-radius: 6px; 
-            font-size: 1.3em; 
-            font-weight: bold;
-            box-shadow: 0 4px 6px var(--sombra-escura);
-        }
-
-        /* Cores para as mensagens de log (Usam cores vivas para dar destaque no fundo BRANCO/CLARO do log) */
-        /* O texto base do log é branco, mas os spans usam cores para sinalização */
-        #log .log-error { color: var(--erro-vermelho); font-weight: bold; }
-        #log .log-success { color: var(--sucesso-verde); font-weight: bold; }
-        #log .log-warning { color: var(--aviso-laranja); font-weight: bold; }
-        #log .log-cancelled { color: var(--erro-vermelho); font-weight: bold; }
-
-        /* Garante que o texto dentro do status seja branco */
-        #status, #log { color: var(--texto-claro); }
     </style>
 </head>
 <body>
@@ -223,8 +186,7 @@
             <button id="cancel-btn" onclick="cancelarTorrent()">Cancelar</button>
         </div>
         
-        <div id="status"></div>
-        <div id="log">Aguardando inserção de Magnet Link...</div>
+        <div id="status">Aguardando inserção de Magnet Link...</div>
         <div id="videoContainer"></div>
     </div>
 
@@ -238,9 +200,9 @@
 
         function togglePauseResume() {
             const btn = document.getElementById('pause-resume-btn');
-            const logElement = document.getElementById('log');
-            const statusElement = document.getElementById('status');
-
+            const statusElement = document.getElementById('status'); // Mudado para usar statusElement
+            const currentStatus = statusElement.innerHTML;
+            
             if (!currentTorrent) return;
 
             if (!isPaused) {
@@ -250,8 +212,10 @@
                 btn.textContent = 'Retomar';
                 btn.style.backgroundColor = 'var(--sucesso-verde)'; // Verde para Retomar
                 btn.setAttribute('data-paused', 'true');
-                logElement.innerHTML = '<span class="log-warning">Torrent Pausado.</span>';
-                statusElement.innerHTML += '<br>STATUS: PAUSADO';
+                
+                // Exibe a mensagem de pausa no status
+                statusElement.innerHTML = '<span class="log-warning">Torrent Pausado.</span><br>' + currentStatus; 
+
             } else {
                 // Tenta Retomar
                 currentTorrent.resume();
@@ -259,14 +223,15 @@
                 btn.textContent = 'Pausar';
                 btn.style.backgroundColor = 'var(--violeta-claro)'; // Violeta Claro para Pausar
                 btn.setAttribute('data-paused', 'false');
-                logElement.innerHTML = '<span class="log-success">Torrent Retomado.</span>';
-                // Remove o status PAUSADO da interface
-                statusElement.innerHTML = statusElement.innerHTML.replace('<br>STATUS: PAUSADO', '');
+                
+                // Exibe a mensagem de retomada no status
+                statusElement.innerHTML = statusElement.innerHTML.replace('<span class="log-warning">Torrent Pausado.</span><br>', '');
+                statusElement.innerHTML = '<span class="log-success">Torrent Retomado.</span>';
+                
             }
         }
 
         function cancelarTorrent() {
-            const logElement = document.getElementById('log');
             const statusElement = document.getElementById('status');
             const videoContainer = document.getElementById('videoContainer');
             const controlsElement = document.getElementById('controls');
@@ -287,11 +252,11 @@
                 client.remove(currentTorrent); 
                 currentTorrent = null;
 
-                // 4. Exibe a mensagem de cancelamento
-                logElement.innerHTML = '<span class="log-cancelled">[ DOWNLOAD CANCELADO ]</span> O torrent foi removido e o campo de endereço limpo.';
+                // 4. Exibe a mensagem de cancelamento no status
+                statusElement.innerHTML = '<span class="log-cancelled">[ DOWNLOAD CANCELADO ]</span> O torrent foi removido e o campo de endereço limpo.';
             } else {
                 // Se não houver torrent ativo
-                logElement.innerHTML = 'Nenhum download ativo para cancelar. O campo de endereço foi limpo.';
+                statusElement.innerHTML = 'Nenhum download ativo para cancelar. O campo de endereço foi limpo.';
             }
         }
 
@@ -299,7 +264,6 @@
         
         function iniciarDownload() {
             const magnetLink = document.getElementById('magnetLink').value.trim();
-            const logElement = document.getElementById('log');
             const statusElement = document.getElementById('status');
             const videoContainer = document.getElementById('videoContainer');
             const controlsElement = document.getElementById('controls');
@@ -307,7 +271,7 @@
 
             // 1. Validação
             if (!magnetLink) {
-                logElement.innerHTML = '<span class="log-error">ERRO: Por favor, insira um Magnet Link válido.</span>';
+                statusElement.innerHTML = '<span class="log-error">ERRO: Por favor, insira um Magnet Link válido.</span>';
                 return;
             }
 
@@ -318,8 +282,7 @@
             }
 
             // Limpa a saída anterior e configura os controles para o estado inicial (Pausar)
-            logElement.innerHTML = 'Conectando aos peers (rastreadores WSS)...';
-            statusElement.innerHTML = '';
+            statusElement.innerHTML = 'Conectando aos peers (rastreadores WSS)...'; // Mensagem inicial no Status
             videoContainer.innerHTML = ''; 
             controlsElement.style.display = 'flex'; 
             pauseBtn.textContent = 'Pausar';
@@ -331,13 +294,13 @@
             client.add(magnetLink, function (torrent) {
                 currentTorrent = torrent; // Armazena a referência
                 
-                logElement.innerHTML = `Torrent **${torrent.name}** adicionado. Aguardando conexão P2P...`;
+                statusElement.innerHTML = `Torrent **${torrent.name}** adicionado. Aguardando conexão P2P...`;
 
                 // --- EVENTO 1: ARQUIVOS PRONTOS (METADADOS BAIXADOS) ---
                 torrent.on('ready', function() {
                     let file = torrent.files.reduce((a, b) => a.length > b.length ? a : b);
 
-                    logElement.innerHTML = `Arquivos encontrados. Maior arquivo: **${file.name}**`;
+                    statusElement.innerHTML = `Arquivos encontrados. Maior arquivo: **${file.name}**`;
                     
                     if (file.name.match(/\.(mp4|webm|mkv|ogg|mp3|wav)$/i)) {
                         file.renderTo(videoContainer, {
@@ -347,7 +310,7 @@
                         });
                         
                     } else {
-                         logElement.innerHTML += `<br>Arquivo não é mídia. Download iniciado, aguarde a conclusão para salvar no disco.`;
+                         statusElement.innerHTML += `<br>Arquivo não é mídia. Download iniciado, aguarde a conclusão para salvar no disco.`;
                     }
                 });
 
@@ -360,14 +323,14 @@
                         const total = (torrent.length / 1024 / 1024).toFixed(2);           // MB
                         const taxa = (torrent.downloadSpeed / 1024 / 1024).toFixed(2);     // MB/s
                         
-                        // NOVO: String de template limpa para garantir a centralização
+                        // String de template limpa para garantir a centralização
                         statusElement.innerHTML = `**Progresso:** ${progresso}% (${baixado} MB de ${total} MB)<br>**Velocidade:** ${taxa} MB/s<br>**Peers Conectados:** ${torrent.numPeers}`;
                     }
                 });
 
                 // --- EVENTO 3: CONCLUSÃO (GARANTIA DE DOWNLOAD) ---
                 torrent.on('done', function () {
-                    logElement.innerHTML = '<span class="log-success">Download concluído! Você agora está semeando (seeding).</span>';
+                    statusElement.innerHTML = '<span class="log-success">Download concluído! Você agora está semeando (seeding).</span>';
                     
                     let file = torrent.files.reduce((a, b) => a.length > b.length ? a : b);
 
@@ -380,7 +343,7 @@
                     
                     file.getBlobURL(function (err, url) {
                         if (err) {
-                            logElement.innerHTML += `<br><span class="log-error">Erro ao gerar link final: ${err.message}</span>`;
+                            statusElement.innerHTML += `<br><span class="log-error">Erro ao gerar link final: ${err.message}</span>`;
                             return;
                         }
                         finalDownloadLink.href = url;
@@ -388,13 +351,13 @@
                         
                         videoContainer.appendChild(finalDownloadLink);
                         
-                        logElement.innerHTML += '<br>Por favor, clique no link **abaixo** para salvar o arquivo no seu dispositivo.';
+                        statusElement.innerHTML += '<br>Por favor, clique no link **abaixo** para salvar o arquivo no seu dispositivo.';
                     });
                 });
                 
                 // --- EVENTO 4: ERRO ESPECÍFICO DO TORRENT ---
                 torrent.on('error', function (err) {
-                    logElement.innerHTML = `<span class="log-error">ERRO no Torrent: ${err.message}</span>`;
+                    statusElement.innerHTML = `<span class="log-error">ERRO no Torrent: ${err.message}</span>`;
                     console.error('Erro no Torrent:', err);
                     controlsElement.style.display = 'none';
                 });
@@ -402,7 +365,7 @@
             
             // --- EVENTO 5: ERRO GERAL DO CLIENTE ---
             client.on('error', function (err) {
-                logElement.innerHTML = `<span class="log-error">ERRO Geral do Cliente: ${err.message}</span>`;
+                statusElement.innerHTML = `<span class="log-error">ERRO Geral do Cliente: ${err.message}</span>`;
                     console.error('Erro no Cliente:', err);
                 controlsElement.style.display = 'none';
             });
