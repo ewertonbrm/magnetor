@@ -211,7 +211,7 @@
     <div class="container">
         
         <div id="input-area">
-            <input type="text" id="magnetLink" placeholder="Insira o Magnet Link aqui..." value="">
+            <input type="text" id="magnetLink" placeholder="Insira o magnet link aqui..." value="">
             <button id="download-btn" onclick="iniciarDownload()">BAIXAR TORRENT</button>
         </div>
 
@@ -244,14 +244,14 @@
                 btn.textContent = 'Retomar';
                 btn.style.backgroundColor = 'var(--sucesso-verde)';
                 btn.setAttribute('data-paused', 'true');
-                statusElement.innerHTML = '<span class="log-warning">Torrent Pausado.</span>'; // Limpa e exibe a mensagem de pausa
+                statusElement.innerHTML = '<span class="log-warning">Torrent pausado.</span>'; // Limpa e exibe a mensagem de pausa
             } else {
                 currentTorrent.resume();
                 isPaused = false;
                 btn.textContent = 'Pausar';
                 btn.style.backgroundColor = 'var(--violeta-claro)';
                 btn.setAttribute('data-paused', 'false');
-                statusElement.innerHTML = '<span class="log-success">Torrent Retomado.</span>'; // Limpa e exibe a mensagem de retomada
+                statusElement.innerHTML = '<span class="log-success">Torrent retomado.</span>'; // Limpa e exibe a mensagem de retomada
             }
         }
 
@@ -307,12 +307,12 @@
             client.add(magnetLink, function (torrent) {
                 currentTorrent = torrent;
                 
-                statusElement.innerHTML = `Torrent **${torrent.name}** adicionado. Aguardando conexão P2P...`;
+                statusElement.innerHTML = `Torrent ${torrent.name} adicionado. Aguardando conexão P2P...`;
 
                 torrent.on('ready', function() {
                     let file = torrent.files.reduce((a, b) => a.length > b.length ? a : b);
 
-                    statusElement.innerHTML = `Arquivos encontrados. Maior arquivo: **${file.name}**`;
+                    statusElement.innerHTML = `Arquivos encontrados. Maior arquivo: ${file.name}`;
                     
                     if (file.name.match(/\.(mp4|webm|mkv|ogg|mp3|wav)$/i)) {
                         file.renderTo(videoContainer, {
