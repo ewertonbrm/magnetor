@@ -1,21 +1,22 @@
 {
-    "name": "Estádio 97",
-    "short_name": "Estádio 97",
-    "description": "Acesso ao podcast do programa Estádio 97.",
-    "start_url": "/estadio97/index.html",
+    "name": "Torrentum",
+    "short_name": "Torrentum",
+    "description": "Player de torrent.",
+    "start_url": "/torrentum/index.html",
     "display": "standalone",
     "background_color": "#FFFFFF",
     "theme_color": "#FFFFFF",
     "icons": [
         {
-            "src": "/estadio97/icons/icon-192x192.png",
+            "src": "/torrentum/icons/icon-192x192.png",
             "sizes": "192x192",
             "type": "image/png"
         },
         {
-            "src": "/estadio97/icons/icon-512x512.png",
+            "src": "/torrentum/icons/icon-512x512.png",
             "sizes": "512x512",
             "type": "image/png"
         }
     ]
+
 }
