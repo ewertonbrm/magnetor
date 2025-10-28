@@ -1,11 +1,11 @@
-const CACHE_NAME = 'estadio97-pwa-cache-v1';
+const CACHE_NAME = 'torrentum-pwa-cache-v1';
 // CAMINHOS AJUSTADOS
 const urlsToCache = [
-    '/estadio97/',
-    '/estadio97/index.html',
-    '/estadio97/manifest.json',
-    '/estadio97/icons/icon-192x192.png',
-    '/estadio97/icons/icon-512x512.png'
+    '/torrentum/',
+    '/torrentum/index.html',
+    '/torrentum/manifest.json',
+    '/torrentum/icons/icon-192x192.png',
+    '/torrentum/icons/icon-512x512.png'
     // Adicione o caminho do seu GIF aqui se estiver local
     // '/insta/caminho/do/seu/gif.gif' 
 ];
@@ -50,4 +50,5 @@ self.addEventListener('activate', event => {
       );
     })
   );
+
 });
